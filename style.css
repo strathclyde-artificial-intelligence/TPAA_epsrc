@@ -1,0 +1,96 @@
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+  width: 80%;
+}
+
+.problemStatementContainer {
+  width: 40%;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.problemParagraph {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.editorContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.hintContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonContainer {
+  margin-top: 5%;
+  display: flex;
+}
+
+.hintBtn {
+  margin-top: 1%;
+  height: 4vh;
+  width: 10vw;
+}
+.solutionBtn {
+  margin-top: 1%;
+  height: 4vh;
+  width: 10vw;
+}
+
+.runButton {
+  border: none;
+  border-radius: 45px;
+  background-color: #62c962;
+  height: 5vh;
+  width: 14vw;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #fff;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.runButton:hover {
+  background-color: #ffc300;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  color: #000;
+  transform: translateY(-7px);
+}
+
+.nextButtonContainer {
+  display: none;
+  flex-direction: column;
+}
+
+.nextButton {
+  border: none;
+  border-radius: 45px;
+  background-color: #62c962;
+  height: 5vh;
+  width: 14vw;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #fff;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.nextButton:hover {
+  background-color: #ffc300;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  color: #000;
+  transform: translateY(-7px);
+}

@@ -1,0 +1,93 @@
+1. given two numbers x and y multiply these numbers and print the output
+
+	problem:
+	def problemOne(x, y):
+
+	solution:
+
+	def problemOne(x, y):
+		print(x * y)
+
+
+2. given two numbers x and y add these numbers and print the output
+
+	problem:
+	def problemTwo(x, y):
+
+	solution:
+
+	def problemTwo(x, y):
+		print(x + y)
+
+
+3. given a string s print each character of the string
+
+	problem:
+	def problemThree(s):
+
+	solution:
+
+	def problemThree(s):
+		for i in s:
+			print(i)
+
+
+4. check if the list contains the number that is passed through the parameters and return True if it contains the number and False otherwise
+
+	problem:
+	def problemFour(list, number):
+
+	solution 1:
+
+	def problemFour(list, number):
+		return list.contains(number)
+		
+	solution 2:
+
+	def problemFour(list, number):
+		answer = False
+		for num in list:
+			if num == number:
+				return True
+
+		return answer
+
+5. given a list of numbers print out all the numbers that are divisible by 5
+	
+	problem:
+	def problemFive(list):
+
+	solution 1:
+	
+	def problemFive(list):
+		for number in list:
+			if number % 5 == 0:
+				print(number)
+
+6. given a number return True if the number is a palindrome
+
+	problem:
+
+	def problemSix(number):
+
+	solution 1:
+	
+	def problemSix(number):
+
+		reverse_number = 0
+		original_number = number 
+		while number > 0:
+			reminder = number % 10
+			reverse_number = (reverse_number * 10) + reminder
+			number = number // 10
+
+		if reverse_number == original_number:
+			return True
+		else:
+			return False
+	
+	solution 2:
+		
+	def problemSix(number):
+		if str(number.reverse()) == str(number):
+			return True
