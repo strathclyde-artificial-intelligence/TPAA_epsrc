@@ -23,6 +23,8 @@ class Model {
 			that.setProblemObject(jsonObj);
 			view.setCode(editor, jsonObj.code);
 			view.setProblemStatement(jsonObj.statement);
+			view.displayProblemText();
+			view.changeActiveButton("Problem");
 		});
 
 		let URL = "http://localhost:8888/index.php/?func="+problemNumber;

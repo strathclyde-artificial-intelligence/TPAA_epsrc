@@ -15,7 +15,7 @@ const initalise = evt => {
 		}
 	  );
 
-	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement);
+	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
 		let code = view.getCode(editor);
@@ -28,34 +28,46 @@ const initalise = evt => {
 
 		if (solutionObject.solution == code) {
 
-			console.log("Current problem solved!");
+			//should insert the output from token judge0, for now filler text
+			view.setOutputText("Correct");
 			let currentIndex = numbers.indexOf(currentProblem);
 
 			if(currentIndex < 4) { 
 				model.setLocalStorage(numbers[currentIndex+1]);
-				let test = localStorage.getItem("currentProblem");
 				view.showNextButton();
 			}
 			//reset to the first problem if we have come to a last problem and made it will
 			if(currentIndex == 4) {
+				view.setOutputText("Correct");
 				model.setLocalStorage("One");
 				view.showNextButton();
 			}
 
 		} else {
-			//incorrect solution
-			console.log("Incorrect");
+			//should insert the output from token judge0, for now filler text
+			view.setOutputText("Incorrect");
 		}
 	});
 
 	view.setUpNextProblemHandler(() => {
 		location.reload();
 	});
+
+
+	view.setProblemTabHandler(() => {
+
+		let solutionObject = model.getProblemObject();
+		view.setProblemStatement(solutionObject.statement);
+		view.changeActiveButton("Problem");
+		view.displayProblemText();
+
+	});
 	
 	view.setSolutionHandler(() => {
-		view.clearEditor(editor);
+
 		let solutionObject = model.getProblemObject();
-		view.showSolution(editor, solutionObject.solution);
+		view.showSolution(solutionObject.solution, view.changeActiveButton);
+
 	});
 
 }

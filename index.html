@@ -13,12 +13,6 @@
           <option value="python">Python</option>
         </select>
         <div class="hintContainer">
-          <input
-            class="solutionBtn"
-            id="solutionBtn"
-            type="button"
-            value="Show solution"
-          />
           <p class="hintText" id="hintText"></p>
         </div>
       </div>
@@ -31,12 +25,30 @@
           rows="30"
         ></textarea>
         <div class="problemStatementContainer">
-          <p class="problemParagraph" id="problemParagraph"></p>
+          <div class="tab">
+            <button class="tabOption" id="tabOptionProblem" value="Problem">
+              Problem
+            </button>
+            <button class="tabOption" id="tabOptionSolution" value="Solution">
+              Solution
+            </button>
+          </div>
+          <div id="tabProblemText" class="tabContent">
+            <p class="problemParagraph" id="problemParagraph"></p>
+          </div>
+          <div id="tabSolutionText" class="tabContent">
+            <pre class="solutionParagraph" id="solutionParagraph"></pre>
+          </div>
         </div>
       </div>
     </div>
     <div class="buttonContainer">
       <input class="runButton" id="runButton" type="button" value="Run" />
+      <div class="outputContainer">
+        <pre class="codeOutput" id="codeOutput">
+Ran code will be output here!</pre
+        >
+      </div>
     </div>
     <div class="nextButtonContainer" id="nextButtonContainer">
       <p class="completedText">You completed the problem congratulations</p>
