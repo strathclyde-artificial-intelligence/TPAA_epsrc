@@ -15,15 +15,14 @@ const initalise = evt => {
 		}
 	  );
 
+
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
 		let code = view.getCode(editor);
-		/*after this we need to check the model if this is the correct code
-		 * We need to pass the problem and what language it is in order to get the proper solution
-		 * preferably we run the code remotely in some container and then check result:
-		 * right now we are just looking at the actual string and comparing it to solution
-		 */
+		console.log(code);
+		model.sendCodeRequest(code);
+		//model.fetchCodeResult(model.getToken, view.setCodeOutputBox);
 		let solutionObject = model.getProblemObject();
 
 		if (solutionObject.solution == code) {
@@ -55,8 +54,8 @@ const initalise = evt => {
 
 
 	view.setProblemTabHandler(() => {
-
 		let solutionObject = model.getProblemObject();
+		model.fetchCodeResult(model.getToken(), view.setCodeOutputBox);
 		view.setProblemStatement(solutionObject.statement);
 		view.changeActiveButton("Problem");
 		view.displayProblemText();
@@ -64,7 +63,6 @@ const initalise = evt => {
 	});
 	
 	view.setSolutionHandler(() => {
-
 		let solutionObject = model.getProblemObject();
 		view.showSolution(solutionObject.solution, view.changeActiveButton);
 

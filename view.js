@@ -26,6 +26,11 @@ class View {
 		editor.setValue(startingCode);
 	}
 
+	setCodeOutputBox(output) {
+		let outputBox = document.getElementById("codeOutput");
+		outputBox.innerText = output;
+	}
+
 	setProblemStatement(problemText) {
 		let problem = document.getElementById("problemParagraph");
 		problem.innerText = problemText;
