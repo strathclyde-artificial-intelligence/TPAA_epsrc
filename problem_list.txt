@@ -64,7 +64,7 @@
 			if number % 5 == 0:
 				print(number)
 
-6. given a number return True if the number is a palindrome
+6. Given a number return True if the number is a palindrome
 
 	problem:
 
@@ -91,3 +91,67 @@
 	def problemSix(number):
 		if str(number.reverse()) == str(number):
 			return True
+
+7. Given a string 'Bob') return "hello Bob Bob"
+
+	problem:
+
+	def problemSeven(str):
+	
+
+	solution 1:
+
+	def problemSeven(str):
+		return f"Hello {str} {str}" 
+
+	
+	solution 2:
+	def problemSeven(str):
+		return "Hello " + str + " " + str
+	
+8. Given two lists listOne and listTwo, find out numbers divisible by 3 from both list and return these as a new list
+
+	problem:
+
+	def problemEight(listOne, listTwo):
+		newList = []
+
+		for num in listOne:
+			if num % 3 == 0:
+				newList.append(num)
+
+		for num in listTwo:
+			if num % 3 == 0:
+				newList.append(num)
+
+		return newList
+
+
+9. Given a string str, create a new string with the first ane last character from str and return this
+
+	problem:
+
+	def problemNine(str):
+
+	solution:
+
+	def problemNine(str):
+		newString = str[0] + str[-1]
+		return newString
+
+
+10. Given a string str and a character char, count the number of occurences of char in str and return the result
+
+	problem:
+
+	def problemTen(str, char):
+
+
+	solution:
+
+	def problemTen(str, char):
+		count = 0
+		for c in str:
+			if c == char:
+				count+=1
+		return count
