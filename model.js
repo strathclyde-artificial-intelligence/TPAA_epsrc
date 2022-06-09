@@ -39,7 +39,8 @@ class Model {
 	}
 
 
-	sendCodeRequest(codeRan) {
+	sendCodeRequest(codeRan, setCodeOutputBox) {
+
 
 		let newData = btoa(codeRan);
 		const data = JSON.stringify({
@@ -54,7 +55,7 @@ class Model {
 
 		xhr.addEventListener("load", function () {
 			let object = this.responseText;
-			that.setTokenObject(JSON.parse(object));
+			that.fetchCodeResult(JSON.parse(object), setCodeOutputBox);
 		});
 
 		xhr.open("POST", "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&fields=*");
@@ -91,6 +92,7 @@ class Model {
 		xhr.send(data);
 
 	}
+
 
 	getToken() {
 		return this.tokenObject;

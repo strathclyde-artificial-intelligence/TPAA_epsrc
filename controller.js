@@ -21,7 +21,7 @@ const initalise = evt => {
 	view.setUpProblemEvaluationHandler(() => {
 		let code = view.getCode(editor);
 		console.log(code);
-		model.sendCodeRequest(code);
+		model.sendCodeRequest(code, view.setCodeOutputBox);
 		//model.fetchCodeResult(model.getToken, view.setCodeOutputBox);
 		let solutionObject = model.getProblemObject();
 
@@ -55,7 +55,6 @@ const initalise = evt => {
 
 	view.setProblemTabHandler(() => {
 		let solutionObject = model.getProblemObject();
-		model.fetchCodeResult(model.getToken(), view.setCodeOutputBox);
 		view.setProblemStatement(solutionObject.statement);
 		view.changeActiveButton("Problem");
 		view.displayProblemText();
@@ -64,6 +63,7 @@ const initalise = evt => {
 	
 	view.setSolutionHandler(() => {
 		let solutionObject = model.getProblemObject();
+		model.fetchCodeResult(model.getToken(), view.setCodeOutputBox);
 		view.showSolution(solutionObject.solution, view.changeActiveButton);
 
 	});
