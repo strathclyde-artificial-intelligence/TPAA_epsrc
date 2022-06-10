@@ -57,6 +57,10 @@ class View {
 		document.getElementById("nextButton").addEventListener("click", listener);
 	}
 
+	setUpSubmitHandler(listener) {
+		document.getElementById("submitButton").addEventListener("click", listener);
+	}
+
 	displayNextProblem() {
 		document.getElementById("nextButtonContainer").style.display = "none";
 	}

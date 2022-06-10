@@ -39,10 +39,11 @@ class Model {
 	}
 
 
-	sendCodeRequest(codeRan, setCodeOutputBox) {
+	sendCodeRequest(codeRan, setCodeOutputBox, testString) {
 
-
-		let newData = btoa(codeRan);
+		let test = codeRan + testString;
+		console.log(test);
+		let newData = btoa(test);
 		const data = JSON.stringify({
 		"language_id": 71,
 		"source_code": newData, 
@@ -53,15 +54,18 @@ class Model {
 		xhr.withCredentials = false;
 		const that = this;
 
-		xhr.addEventListener("load", function () {
-			let object = this.responseText;
-			that.fetchCodeResult(JSON.parse(object), setCodeOutputBox);
+		xhr.addEventListener("readystatechange", function () {
+			
+				if (this.readyState === this.DONE) {
+					let object = this.responseText;
+					that.fetchCodeResult(JSON.parse(object), setCodeOutputBox);
+				}
 		});
 
 		xhr.open("POST", "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&fields=*");
 		xhr.setRequestHeader("content-type", "application/json");
 		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.setRequestHeader("X-RapidAPI-Key", "a347e3b4a1msh415496f054610f9p1fc018jsn5be3d8c48e42");
+		xhr.setRequestHeader("X-RapidAPI-Key", "1b2e2dc18fmsh22a79fc79be240fp129ea7jsn783b92950d99");
 		xhr.setRequestHeader("X-RapidAPI-Host", "judge0-ce.p.rapidapi.com");
 
 		xhr.send(data);
@@ -78,15 +82,19 @@ class Model {
 		const xhr = new XMLHttpRequest();
 		xhr.withCredentials = false;
 
-		xhr.addEventListener("load", function () {
-				let collectedData = this.responseText;
-				let data = JSON.parse(collectedData);
-				console.log(data.stdout);
-				view.setCodeOutputBox(atob(data.stdout));
+		xhr.addEventListener("readystatechange", function () {
+
+				if(this.readyState == this.DONE) {
+					let collectedData = this.responseText;
+					let data = JSON.parse(collectedData);
+					console.log(data.stdout);
+					that.setProblemOutput(atob(data.stdout));
+					view.setCodeOutputBox(atob(data.stdout));
+				}
 		});
 
 		xhr.open("GET", "https://judge0-ce.p.rapidapi.com/submissions/"+responseObject.token+"?base64_encoded=true&fields=*");
-		xhr.setRequestHeader("X-RapidAPI-Key", "a347e3b4a1msh415496f054610f9p1fc018jsn5be3d8c48e42");
+		xhr.setRequestHeader("X-RapidAPI-Key", "1b2e2dc18fmsh22a79fc79be240fp129ea7jsn783b92950d99");
 		xhr.setRequestHeader("X-RapidAPI-Host", "judge0-ce.p.rapidapi.com");
 
 		xhr.send(data);
@@ -104,6 +112,10 @@ class Model {
 
 	setProblemOutput(output) {
 		this.codeOutput = output;
+	}
+
+	getProblemOutput() {
+		return this.codeOutput;
 	}
 
 	getProblemObject() {

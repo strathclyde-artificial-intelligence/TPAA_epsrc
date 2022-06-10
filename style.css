@@ -29,7 +29,7 @@
 .buttonContainer {
   margin-top: 5%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .hintBtn {
@@ -62,6 +62,31 @@
 }
 
 .runButton:hover {
+  background-color: #ffc300;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  color: #000;
+  transform: translateY(-7px);
+}
+
+.submitButton {
+  border: none;
+  border-radius: 45px;
+  background-color: #62c962;
+  height: 5vh;
+  width: 14vw;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #fff;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  margin-bottom: 2%;
+}
+
+.submitButton:hover {
   background-color: #ffc300;
   box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
   color: #000;
@@ -138,7 +163,7 @@
 }
 
 .outputContainer {
-  width: 30vw;
+  width: 60vw;
   height: 30vh;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
 }

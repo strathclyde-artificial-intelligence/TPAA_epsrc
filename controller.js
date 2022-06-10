@@ -21,31 +21,40 @@ const initalise = evt => {
 	view.setUpProblemEvaluationHandler(() => {
 		let code = view.getCode(editor);
 		console.log(code);
-		model.sendCodeRequest(code, view.setCodeOutputBox);
-		//model.fetchCodeResult(model.getToken, view.setCodeOutputBox);
 		let solutionObject = model.getProblemObject();
+		model.sendCodeRequest(code, view.setCodeOutputBox, solutionObject.testCases);
 
-		if (solutionObject.solution == code) {
+	});
 
-			//should insert the output from token judge0, for now filler text
-			view.setOutputText("Correct");
-			let currentIndex = numbers.indexOf(currentProblem);
+	view.setUpSubmitHandler(() => {
+		let solutionObject = model.getProblemObject();
+		let outputCode = model.getProblemOutput();
 
-			if(currentIndex < 4) { 
-				model.setLocalStorage(numbers[currentIndex+1]);
-				view.showNextButton();
-			}
-			//reset to the first problem if we have come to a last problem and made it will
-			if(currentIndex == 4) {
-				view.setOutputText("Correct");
-				model.setLocalStorage("One");
-				view.showNextButton();
-			}
-
+		if(outputCode == undefined) {
+			view.setOutputText("Before you submit your code make sure to run it.");
 		} else {
-			//should insert the output from token judge0, for now filler text
-			view.setOutputText("Incorrect");
+			let cleanSolutionText = solutionObject.testOutput.replace(/^[0-9\s]*|[+*\r\n]/g, "")
+			let cleanOutpuText = outputCode.replace(/^[0-9\s]*|[+*\r\n]/g, "");
+
+			if (cleanSolutionText == cleanOutpuText) {
+
+				//should insert the output from token judge0, for now filler text
+				view.setOutputText("Correct");
+				let currentIndex = numbers.indexOf(currentProblem);
+
+				if(currentIndex < 4) { 
+					model.setLocalStorage(numbers[currentIndex+1]);
+					view.showNextButton();
+				}
+				//reset to the first problem if we have come to a last problem and made it will
+				if(currentIndex == 4) {
+					view.setOutputText("Correct");
+					model.setLocalStorage("One");
+					view.showNextButton();
+				}
+			} 
 		}
+
 	});
 
 	view.setUpNextProblemHandler(() => {
@@ -63,7 +72,6 @@ const initalise = evt => {
 	
 	view.setSolutionHandler(() => {
 		let solutionObject = model.getProblemObject();
-		model.fetchCodeResult(model.getToken(), view.setCodeOutputBox);
 		view.showSolution(solutionObject.solution, view.changeActiveButton);
 
 	});
