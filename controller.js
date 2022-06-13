@@ -19,10 +19,14 @@ const initalise = evt => {
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
+			
+		//we clear the output for loading animation
+		view.setCodeOutputBox("");
+		view.showLoadingAnimation();
 		let code = view.getCode(editor);
 		console.log(code);
 		let solutionObject = model.getProblemObject();
-		model.sendCodeRequest(code, view.setOutputBox, solutionObject.testCases);
+		model.sendCodeRequest(code, view.setOutputBox, view.removeLoadingAnimation, solutionObject.testCases);
 
 	});
 

@@ -13,9 +13,9 @@ class Model {
 		//fetching function for visiting currency
 		let xhr = new XMLHttpRequest();
 		const that = this;
-		if(currentProblem == null) {
+		if(problemNumber == null) {
 			//if the number has not been set or cleared we fetch the first problem
-			problemNumber = numbers[0];
+			problemNumber = "One";
 		}
 
 		xhr.addEventListener("load", function() {
@@ -39,7 +39,7 @@ class Model {
 	}
 
 
-	sendCodeRequest(codeRan, setCodeOutputBox, testString) {
+	sendCodeRequest(codeRan, setCodeOutputBox, removeLoadingAnimation, testString) {
 		
 		let test = codeRan + testString;
 		let newData = btoa(test);
@@ -47,15 +47,15 @@ class Model {
 
 		let xhr = new XMLHttpRequest();
 		const that = this;
-		if(currentProblem == null) {
+		if(problemNumber == null) {
 			//if the number has not been set or cleared we fetch the first problem
-			problemNumber = numbers[0];
+			problemNumber = "One";
 		}
 
 		xhr.addEventListener("load", function() {
 			let text = this.responseText;
 			let jsonObj = JSON.parse(text);
-			that.fetchCodeResult(jsonObj.token, setCodeOutputBox);
+			that.fetchCodeResult(jsonObj.token, setCodeOutputBox, removeLoadingAnimation);
 		});
 
 		let URL = "send.php/?code="+newData;
@@ -68,7 +68,7 @@ class Model {
 		this.tokenObject = tokenReceived;
 	}
 
-	fetchCodeResult(token, setCodeOutputBox) {
+	fetchCodeResult(token, setCodeOutputBox, removeLoadingAnimation) {
 		
 		const that = this;
 		let xhr = new XMLHttpRequest();
@@ -78,19 +78,20 @@ class Model {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
 				console.log(data.stdout);
-				that.setProblemOutput(atob(data.stdout));
-				view.setCodeOutputBox(atob(data.stdout));
+				if(data.stdout === null) {
+					view.removeLoadingAnimation();
+					view.setCodeOutputBox("error");
+				} else {
+					that.setProblemOutput(atob(data.stdout));
+					view.removeLoadingAnimation();
+					view.setCodeOutputBox(atob(data.stdout));
+				}
 			}
-
 		});
 
 		let URL = "getCode.php/?token="+token;
 		xhr.open("GET", URL, true);
 		xhr.send();
-	}
-
-	getToken() {
-		return this.tokenObject;
 	}
 
 	setProblemObject(jsonObj) {
