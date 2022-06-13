@@ -24,13 +24,13 @@ function Two() {
 
 function Three() {
 	$problemThree= array("id"=>3, "statement"=>"given a string s print each character of the string
-", "code"=>"def problemTree(str):", "solution"=>"def problemTree(str):\n\tfor char in str:\n\t\tprint(char)", "testCases"=>"\nproblemThree(\"Hello\")\nproblemThree(\"Max\")", "testOutput"=>"H\ne\nl\nl\no\nM\na\nx");
+", "code"=>"def problemThree(str):", "solution"=>"def problemThree(str):\n\tfor char in str:\n\t\tprint(char)", "testCases"=>"\nproblemThree(\"Hello\")\nproblemThree(\"Max\")", "testOutput"=>"H\ne\nl\nl\no\nM\na\nx");
 	echo json_encode($problemThree);
 }
 
 function Four() {
 	$problemFour= array("id"=>4, "statement"=>"check if the list contains the number that is passed through the parameters and return True if it contains the number and False otherwise
-		", "code"=>"def problemFour(list, number):", "solution"=>"def problemFour(list, number):\n\tfor num in list:\n\t\tif num == number:\n\t\t\treturn True\n\treturn False", "testCases"=>"\nproblemFour([1,2,3,4], 4)\nproblemFour([2,3,4,5,6,7], 12)\nproblemFour([33,22,33], 22)", "testOutput"=>"True\nFalse\nTrue");
+		", "code"=>"def problemFour(list, number):", "solution"=>"def problemFour(list, number):\n\tfor num in list:\n\t\tif num == number:\n\t\t\treturn True\n\treturn False", "testCases"=>"\nprint(problemFour([1,2,3,4], 4))\nprint(problemFour([2,3,4,5,6,7], 12))\nprint(problemFour([33,22,33], 22))", "testOutput"=>"True\nFalse\nTrue");
 	echo json_encode($problemFour);
 }
 

@@ -15,21 +15,21 @@ const initalise = evt => {
 		}
 	  );
 
-
+	//fetch problem from php
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
 		let code = view.getCode(editor);
 		console.log(code);
 		let solutionObject = model.getProblemObject();
-		model.sendCodeRequest(code, view.setCodeOutputBox, solutionObject.testCases);
+		model.sendCodeRequest(code, view.setOutputBox, solutionObject.testCases);
 
 	});
 
 	view.setUpSubmitHandler(() => {
 		let solutionObject = model.getProblemObject();
 		let outputCode = model.getProblemOutput();
-
+		//if code has not been run, outputCode object will be undefined so we have to check this
 		if(outputCode == undefined) {
 			view.setOutputText("Before you submit your code make sure to run it.");
 		} else {
@@ -38,7 +38,6 @@ const initalise = evt => {
 
 			if (cleanSolutionText == cleanOutpuText) {
 
-				//should insert the output from token judge0, for now filler text
 				view.setOutputText("Correct");
 				let currentIndex = numbers.indexOf(currentProblem);
 
@@ -75,7 +74,6 @@ const initalise = evt => {
 		view.showSolution(solutionObject.solution, view.changeActiveButton);
 
 	});
-
 }
 
 window.addEventListener("load", initalise);

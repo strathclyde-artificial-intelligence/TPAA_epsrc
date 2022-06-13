@@ -40,67 +40,54 @@ class Model {
 
 
 	sendCodeRequest(codeRan, setCodeOutputBox, testString) {
-
+		
 		let test = codeRan + testString;
-		console.log(test);
 		let newData = btoa(test);
-		const data = JSON.stringify({
-		"language_id": 71,
-		"source_code": newData, 
-		"stdin": "SnVkZ2Uw"
-	});
+		console.log(newData);
 
-		const xhr = new XMLHttpRequest();
-		xhr.withCredentials = false;
+		let xhr = new XMLHttpRequest();
 		const that = this;
+		if(currentProblem == null) {
+			//if the number has not been set or cleared we fetch the first problem
+			problemNumber = numbers[0];
+		}
 
-		xhr.addEventListener("readystatechange", function () {
-			
-				if (this.readyState === this.DONE) {
-					let object = this.responseText;
-					that.fetchCodeResult(JSON.parse(object), setCodeOutputBox);
-				}
+		xhr.addEventListener("load", function() {
+			let text = this.responseText;
+			let jsonObj = JSON.parse(text);
+			that.fetchCodeResult(jsonObj.token, setCodeOutputBox);
 		});
 
-		xhr.open("POST", "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&fields=*");
-		xhr.setRequestHeader("content-type", "application/json");
-		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.setRequestHeader("X-RapidAPI-Key", "1b2e2dc18fmsh22a79fc79be240fp129ea7jsn783b92950d99");
-		xhr.setRequestHeader("X-RapidAPI-Host", "judge0-ce.p.rapidapi.com");
+		let URL = "send.php/?code="+newData;
+		xhr.open("GET", URL, true);
+		xhr.send();
 
-		xhr.send(data);
 	}
 
 	setTokenObject(tokenReceived) {
 		this.tokenObject = tokenReceived;
 	}
 
-	fetchCodeResult(responseObject, setCodeOutputBox) {
-		const data = null;
+	fetchCodeResult(token, setCodeOutputBox) {
+		
 		const that = this;
+		let xhr = new XMLHttpRequest();
 
-		const xhr = new XMLHttpRequest();
-		xhr.withCredentials = false;
+		xhr.addEventListener("readystatechange", function() {
+			if(this.readyState == this.DONE) {
+				let collectedData = this.responseText;
+				let data = JSON.parse(collectedData);
+				console.log(data.stdout);
+				that.setProblemOutput(atob(data.stdout));
+				view.setCodeOutputBox(atob(data.stdout));
+			}
 
-		xhr.addEventListener("readystatechange", function () {
-
-				if(this.readyState == this.DONE) {
-					let collectedData = this.responseText;
-					let data = JSON.parse(collectedData);
-					console.log(data.stdout);
-					that.setProblemOutput(atob(data.stdout));
-					view.setCodeOutputBox(atob(data.stdout));
-				}
 		});
 
-		xhr.open("GET", "https://judge0-ce.p.rapidapi.com/submissions/"+responseObject.token+"?base64_encoded=true&fields=*");
-		xhr.setRequestHeader("X-RapidAPI-Key", "1b2e2dc18fmsh22a79fc79be240fp129ea7jsn783b92950d99");
-		xhr.setRequestHeader("X-RapidAPI-Host", "judge0-ce.p.rapidapi.com");
-
-		xhr.send(data);
-
+		let URL = "getCode.php/?token="+token;
+		xhr.open("GET", URL, true);
+		xhr.send();
 	}
-
 
 	getToken() {
 		return this.tokenObject;

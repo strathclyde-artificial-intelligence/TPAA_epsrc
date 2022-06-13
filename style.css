@@ -84,6 +84,7 @@
   cursor: pointer;
   outline: none;
   margin-bottom: 2%;
+  margin-left: 2%;
 }
 
 .submitButton:hover {
