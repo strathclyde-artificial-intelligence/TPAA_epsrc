@@ -15,6 +15,7 @@ const initalise = evt => {
 		}
 	  );
 
+
 	//fetch problem from php
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	

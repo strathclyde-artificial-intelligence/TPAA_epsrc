@@ -38,23 +38,24 @@ class Model {
 		localStorage.setItem("currentProblem", nameOfCurrentProblem);
 	}
 
+	setLocalStorage(nameOfCurrentProblem) {
+		console.log(nameOfCurrentProblem);
+		localStorage.setItem("currentProblem", nameOfCurrentProblem);
+
+	}
 
 	sendCodeRequest(codeRan, setCodeOutputBox, removeLoadingAnimation, testString) {
 		
-		let test = codeRan + testString;
-		let newData = btoa(test);
-		console.log(newData);
+		let combinedCode = codeRan + testString;
+		let newData = btoa(combinedCode);
 
 		let xhr = new XMLHttpRequest();
 		const that = this;
-		if(problemNumber == null) {
-			//if the number has not been set or cleared we fetch the first problem
-			problemNumber = "One";
-		}
 
 		xhr.addEventListener("load", function() {
 			let text = this.responseText;
 			let jsonObj = JSON.parse(text);
+			console.log(jsonObj);
 			that.fetchCodeResult(jsonObj.token, setCodeOutputBox, removeLoadingAnimation);
 		});
 
@@ -77,7 +78,7 @@ class Model {
 			if(this.readyState == this.DONE) {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
-				console.log(data.stdout);
+				console.log(data);
 				if(data.stdout === null) {
 					view.removeLoadingAnimation();
 					view.setCodeOutputBox("error");

@@ -84,9 +84,21 @@ class View {
 
 	}
 
+	showLoadingAnimation() {
+		document.getElementById("loader").style.display = "flex";
+	}
+
+	removeLoadingAnimation() {
+		document.getElementById("loader").style.display = "none";
+	}
+
 	setOutputText(code) {
 		let output = document.getElementById("codeOutput");
 		output.innerText = code;
+	}
+
+	clearCodeoutput() {
+		document.getElementById("codeOutput").innerHTML = "";
 	}
 
 	changeActiveButton(change) {
