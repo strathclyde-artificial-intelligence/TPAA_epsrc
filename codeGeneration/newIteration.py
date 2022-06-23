@@ -1,6 +1,7 @@
 import random
 import re
 import sys
+import time
 
 node_conf1 = {
         "operation1": "{0} = {1} + {2}; [A]", 
@@ -56,7 +57,7 @@ class ProgrammingGenerator:
 
     def __init__(self):
         self.graph = {}
-        self.available_slots = {}
+        self.connection_slots = {}
 
     def start(self, complexity):
         choices = ["operation", "condition"]
@@ -74,7 +75,7 @@ class ProgrammingGenerator:
            
             #unpack the operations for each graph statement i.e., all [A], [B] with corresponding slot
             graph_value = self.graph.get(random_key)
-            slots = list(self.available_slots.get(random_key))
+            slots = list(self.connection_slots.get(random_key))
             
             #get a random integer within the range of the slots list, e.g., if there is 2 slots [A] or [B] can be taken
             if len(slots) == 1:
@@ -83,58 +84,120 @@ class ProgrammingGenerator:
                 #if there exists only one slots then there is not need to geneerate randint, as only possible spot for op is index 0
                 index = random.randint(0, len(slots)) 
 
-            if random_slot in slots and self.available_slots.get(random_slot) == None:
+            if random_slot in slots and self.connection_slots.get(random_slot) == None:
                 key = self.assign_new_node(self.generate(random_one), key)
-                self.available_slots[random_key][random_slot] = key
+                self.connection_slots[random_key][random_slot] = key
+    
 
         ret_statement = list(operation_ret.items())
-        print(ret_statement[0][1])
+
 
         #after we have assigned a bunch of random nodes to some free operation slow, we conclude by adding return statements to the last free slots
-        slot_keys = self.available_slots.keys()
-        for index in slot_keys:
+        slot_keys = self.connection_slots.keys()
 
-            if "[A]" in self.available_slots[index]:
-                if self.available_slots[index]["[A]"] == None:
-                    self.available_slots[index]["[A]"] = ret_statement[0][1]
-            if "[B]" in self.available_slots[index]:
-                if self.available_slots[index]["[B]"] == None:
-                    self.available_slots[index]["[B]"] = ret_statement[0][1]
-        return self.graph, self.available_slots 
+        #we need to create new return nodes and add these as connections but since dict cannot be changed we keep a list of how many return nodes we need to add.
+        #we initalise counter for amount of new nodes created and add key to corresponding statement
+        count = 1 
+        for index in slot_keys:
+            if options[0] in self.connection_slots[index]:
+                if self.connection_slots[index][options[0]] == None:
+                    self.connection_slots[index][options[0]] = key+count
+            if options[1] in self.connection_slots[index]:
+                if self.connection_slots[index][options[1]] == None:
+                    self.connection_slots[index][options[1]] = key+count
+                    count+=1
+        
+        #creation of all nodes in graph 
+        for i in range(count):
+            key = self.assign_new_node(ret_statement[0][1], key)
+
+        return self.graph, self.connection_slots 
 
 
     def assign_new_node(self, statement, key):
         key+=1
         if "[A]" and "[B]" in statement:
             self.graph[key] = {statement: key}
-            self.available_slots[key] = {"[A]": None, "[B]": None}
+            self.connection_slots[key] = {"[A]": None, "[B]": None}
+        elif "[A]" in statement:
+            self.graph[key] = {statement: key}
+            self.connection_slots[key] = {"[A]": None}
         else:
             self.graph[key] = {statement: key}
-            self.available_slots[key] = {"[A]": None}
+            self.connection_slots[key] = {"return" : "{1}"}
         return key
 
     '''
     We used the following algorithm in assigning node parameters. 
 
-    First, we define the depth of a node N as the number of steps needed to reach node N from the start node.  -- how do we do this (try count the amount of dots from start)?
+    First, we define the depth of a node N as the number of steps needed to reach node N from the start node.  -- this is just the key of each node in the graph
 
     Next, we define critical_nodes to be a list of critical nodes. We define a critical node as a node whose operation affects the outcome of the function. Initially, we add all return nodes and condition nodes to Clist. 
 
     Return nodes directly affect the return value of the function by their definition, while condition nodes affect which branch to take, thus affecting which return node will be reached.
     '''
 
-    def node_parameters(self, statement):
+    def node_parameters(self):
 
+        operands = ["{1}", "{2}"]
         critical_nodes = []
-        statements = statement.replace(".", "%replace").replace(":", "%replace").split("%replace")
-        for i in range(len(statements)):
-            if "If" in statements[i]:
-                critical_nodes.append((i, statements[i]))
-            elif "return" in statements[i]: 
-                critical_nodes.append((i, statements[i]))
+        #a node is critical if its a conditional or if it is a return statement, we can look for length, if it is 2 then we add because conditionals are the only one with 2 statements
+        slot_keys = self.connection_slots.keys()
+        for index in slot_keys:
+            if len(self.connection_slots[index]) == 2:
+                critical_nodes.append(index)
+            elif "return {1}" in self.connection_slots[index]:
+                critical_nodes.append(index)
 
-        statements = self.create_variables(statements, critical_nodes)
-        return statements, len(statements) 
+        #we have all critical_nodes in the list
+        count = 1
+        for i in range(len(slot_keys)):
+            #For each operation node N, we create a unique variable Xi, assign it as the output variable of N, and then increment i. 
+            if i+1 not in critical_nodes:
+                choice = random.choice(operands)
+                #change string with new x_var
+                key_value = list(self.graph[i+1].items())
+                new_statement = key_value[0][0].replace(choice, "x"+str(count))
+                #we assign the same key number but with a new statement
+                self.graph[i+1] = {i+1: {new_statement: i+1}}
+                '''error from here -> self condition check not working as intended'''
+                self.condition_check(count, i+1, critical_nodes)
+                #increment the x_var so that next assignment will be different
+                count+=1
+    
+
+    def condition_check(self, x_var, current_node_index, critical_nodes):
+        random_node = random.choice(critical_nodes)
+        key_value = list(self.graph[random_node].items())
+        if "{1}" in key_value[0][0] or "{2}" in key_value[0][0]:
+            #now we need to check that this node is reachable
+            print(key_value[0][0])
+            if self.is_reachable(current_node_index, random_node) == True:
+                print('yes haha')
+                pass
+            else:
+                sys.exit(9)
+                pass
+
+
+    def is_reachable(self, current_node_index, target_node_index):
+
+        #incomplete
+        print(f'here = {self.connection_slots[current_node_index]}')
+        value = list(self.connection_slots[current_node_index].values())
+        #if the next connection is the target node then we know that it is true
+        if value[0] == target_node_index:
+            return True
+        else:
+            #we have to traverse until we find a return node, which is the bottom of the stack
+            while "return {1}" not in value:
+                print(value)
+                try:
+                    value = list(self.connection_slots[value[0]].values())
+                except:
+                    print(self.connection_slots)
+                    return "failed"
+            print('OUT!!!')
 
     def generate(self, type_of_thing):
         if type_of_thing == "operation":
@@ -148,82 +211,7 @@ class ProgrammingGenerator:
             statement_str = random_entry[1]
             return statement_str
 
-    '''
-    Next, we set a counter variable i=1. We loop through the remaining operation nodes in descending depth. 
-    For each operation node N, we create a unique variable Xi, assign it as the output variable of N, and then increment i. 
-    Then, we select a random node C from Clist that satisfy the following conditions: C has at least one operand that is not yet defined and C is reachable from N. 
-    If no nodes satisfy the above conditions, the generation is treated as a failure. Otherwise, the variable Xi is assigned as one of the operands of C. 
-    Since C is a critical node and the output variable of N is now used as an operand of C, it follows that N is now a critical node as well, so we add it to Clist. 
-    Randomly, the algorithm may repeat assigning Xi to more nodes from Clist, but only the first assignment is required. This process is repeated until all nodes are already in Clist.
-    '''
-
-    '''
-    how do we do this???
-
-        do x + y = z
-
-        if x == 1:
-            if y >= 2:
-                x2 = x + 3
-                return x2
-            else:
-                return x
-        else:
-            if x2 == 3: --- this is wrong
-                x3 = x + 33
-                return x3
-    '''
-
-    def is_reachable(self, rand_node, node_nr, statements, statement_index):
-
-        tabs = 0 
-        #does not quite work
-        for stmnt in statements:
-            if "If" in stmnt:
-                print(tabs * ' '+stmnt)
-                tabs+=2
-            elif "otherwise" in stmnt:
-                tabs-=2
-                print(tabs * ' '+stmnt)
-            elif "return" in stmnt:
-                print(tabs * ' '+stmnt)
-                tabs-=2
-
-    def check_conditions(self, critical_nodes, statements, statement_index, rand_node, x_var):
-        operands_choice = ["{1}", "{2}"]
-        #C is reachable from  N -> how do we prove this condition
-        number, node = rand_node 
-        #this rule does not hold for all cases we need to check how the statements can reach each other
-        if ("{1}" in node or "{2}" in node) and (statement_index < number):
-            return node, node.replace(random.choice(operands_choice), x_var)
-        else:
-            for i in range(10):
-                if ("{1}" in node or "{2}" in node) and (statement_index < number):
-                    return node, node.replace(random.choice(operands_choice), x_var)
-        return [], []
-
-    def create_variables(self, statements, critical_nodes):
-        cnt = 1
-        for i in range(len(statements)):
-            if "{O}" in statements[i]:
-                x_var = "x" + str(cnt)
-                statements[i] = statements[i].replace("{O}", x_var)
-                random_entry = random.randint(0, len(statements) - 1)
-                #more of algorithm with critical_nodes
-                random_critical_node = random.choice(critical_nodes)
-                node, new_node = self.check_conditions(critical_nodes, statements[i], i, random_critical_node, x_var)
-                self.is_reachable(random_critical_node, random_entry, statements, i)
-                if node == [] and new_node == []:
-                    print("Failed")
-                    sys.exit(1)
-                for j in range(len(statements)):
-                    if statements[j] == node:
-                        statements[j] = new_node
-                        critical_nodes.append((j, statements[j]))
-                cnt+=1
-        return statements
-
 generator = ProgrammingGenerator()
-print(generator.start(3))
-#print(generator.node_parameters(generator.start(3)))
+x, y = generator.start(3)
+print(generator.node_parameters())
 
