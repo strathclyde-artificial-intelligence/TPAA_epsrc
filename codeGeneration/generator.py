@@ -184,11 +184,8 @@ class ProgrammingGenerator:
 
         self.add_function_input(complexity)
         self.fill_remaining()
+        self.build_statements()
 
-        print(stack)
-        print(critical_nodes)
-        print(self.statements)
-        print(self.graph)
 
 
     #this function adds input parameters into the statement
@@ -215,9 +212,12 @@ class ProgrammingGenerator:
                 self.statements[random_node] = new_statement
                 count+=1
             
+
+
     def fill_remaining(self):
         graph_list_keys = list(self.graph.keys())
 
+        #for all the statements in the graph, we add random numbers to all available slots
         for index in graph_list_keys:
             if self.operands[0] in self.statements[index]:
                 rand_number = str(random.randint(0, 100))
@@ -264,8 +264,9 @@ class ProgrammingGenerator:
                 new_list[new_list.index(slot)] = key
                 self.graph[random_key] = new_list 
             else:
+                max_tries = 10
                 #we can only assign the new node to a node that has come before it, therefore, we can only assign when condition random_key < key is true
-                for i in range(10):
+                for i in range(max_tries):
                     random_key = random.choice(list(self.graph.keys()))
                     if random_key < key and slot in self.actions:
                         new_list[new_list.index(slot)] = key
@@ -289,6 +290,14 @@ class ProgrammingGenerator:
             random_entry = random.choice(entry_list)
             statement_str = random_entry[1]
             return statement_str, type_of_operation
+    
+    def build_statements(self):
+        #think about how to create this build statement in a good way. Will be needed for code generation as well.
+        graph_list_keys = list(self.graph.keys())
+        for index in graph_list_keys:
+            pass
+
+
 
 
 
