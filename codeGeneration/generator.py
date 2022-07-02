@@ -71,6 +71,7 @@ class ProgrammingGenerator:
             key = self.attach_nodes(new_statement, key, type_of_operation)
 
 
+
         #Finally, we attach return nodes to all the remaining slots. return nodes are terminal and there fore lead to none
         for index in range(1, len(self.graph) + 1):
             if self.actions[0] in self.graph[index]:
@@ -85,6 +86,7 @@ class ProgrammingGenerator:
                 self.graph[key] = None
 
         self.assign_node_parameters(complexity)
+        return self.statements[1]
 
 
     def assign_node_parameters(self, complexity):
@@ -185,7 +187,7 @@ class ProgrammingGenerator:
         self.add_function_input(complexity)
         self.fill_remaining()
         self.build_statements()
-
+        print(self.graph)
 
 
     #this function adds input parameters into the statement
@@ -213,7 +215,6 @@ class ProgrammingGenerator:
                 count+=1
             
 
-
     def fill_remaining(self):
         graph_list_keys = list(self.graph.keys())
 
@@ -237,6 +238,21 @@ class ProgrammingGenerator:
             else:
                 for neighbour in self.graph[node]:
                     self.dfs(visited, neighbour)
+        return visited
+    
+
+    def bfs(self, visited, node): 
+        queue = []
+        visited.append(node)
+        queue.append(node)
+        while queue:
+            m = queue.pop(0) 
+            if self.graph[m] == None:
+                return visited
+            for neighbour in self.graph[m]:
+                if neighbour not in visited:
+                    visited.append(neighbour)
+                    queue.append(neighbour)
         return visited
 
 
@@ -291,15 +307,28 @@ class ProgrammingGenerator:
             statement_str = random_entry[1]
             return statement_str, type_of_operation
     
+
     def build_statements(self):
         #think about how to create this build statement in a good way. Will be needed for code generation as well.
         graph_list_keys = list(self.graph.keys())
-        for index in graph_list_keys:
-            pass
 
+        for node in graph_list_keys:
+            node_numbers = self.graph[node]
+            if node_numbers == None:
+                break
+            elif len(node_numbers) == 2:
+                self.statements[node] = self.statements[node].replace("[A]", "{" + str(node_numbers[0]) + "}").replace("[B]", "{" + str(node_numbers[1]) + "}")
+            else:
+                self.statements[node] = self.statements[node].replace("[A]", "{" + str(node_numbers[0]) + "}")
 
+            
+        for node in graph_list_keys:
+            for i in range(1, len(graph_list_keys)+1):
+                current = "{" + str(i) + "}"
+                if current in self.statements[node]:
+                    self.statements[node] = self.statements[node].replace(current, self.statements[i])
 
 
 
 generator = ProgrammingGenerator()
-generator.start(3)
+print(generator.start(3))
