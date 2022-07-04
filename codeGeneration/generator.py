@@ -10,8 +10,8 @@ node_op = {
         }
 
 node_cond = {
-        "condition1": "if {1} == {2}: [A] else: [B]", 
-        "condition2": "if {1} >= {2}: [A] else: [B]", 
+        "condition1": "if {1} == {2}: [A]else: [B]", 
+        "condition2": "if {1} >= {2}: [A]else: [B]", 
         }
 
 node_ret = "return {1}"
@@ -44,7 +44,6 @@ class ProgrammingGenerator:
         self.operands = ["{1}", "{2}"]
         self.output = "{O}"
         self.keywords = ["return {1}", "If", "Get"]
-
 
 
     def start(self, complexity):
@@ -83,9 +82,7 @@ class ProgrammingGenerator:
                 self.graph[key] = None
 
         self.assign_node_parameters(complexity)
-
-        print(self.statements[1])
-        print(self.code[1])
+        self.intent_code()
 
         return self.statements[1]
 
@@ -130,25 +127,7 @@ class ProgrammingGenerator:
                     operand_to_replace = random.choice(self.operands)
                     statement = self.statements[node]
                     code_str = self.code[node]
-                    if self.operands[0] in self.statements[index] and self.operands[1] in self.statements[index]:
-                        if operand_to_replace in statement:
-                            new_statement = statement.replace(operand_to_replace, x_var +str(count))
-                            self.statements[node] = new_statement
-                            new_code = code_str.replace(operand_to_replace, x_var + str(count))
-                            self.code[node] = new_code
-                            
-                        #if we the other slot is the free one
-                        elif operand_to_replace == self.operands[0]:
-                            new_statement = statement.replace(self.operands[1], x_var +str(count))
-                            self.statements[node] = new_statement
-                            new_code = code_str.replace(self.operands[1], x_var + str(count))
-                            self.code[node] = new_code
-                        #if we the other slot is the free one
-                        elif operand_to_replace == self.operands[1]:
-                            new_statement = statement.replace(self.operands[0], x_var +str(count))
-                            self.statements[node] = new_statement
-                            new_code = code_str.replace(self.operands[0], x_var + str(count))
-                            self.code[node] = new_code
+                    self.update_statements(node, statement, code_str, operand_to_replace, x_var, count)
                 else:
                     #we check if there is more then 1 node that is folling, and if this nodes is an operation node if this is the case then we assign one of the variables to this
                     next_node = (list(visited)[1])
@@ -157,24 +136,7 @@ class ProgrammingGenerator:
 
                     if self.keywords[2] in statement:
                         operand_to_replace = random.choice(self.operands)
-                        if self.operands[0] in statement and self.operands[1] in statement:
-                            if operand_to_replace in statement:
-                                new_statement = statement.replace(operand_to_replace, x_var +str(count))
-                                new_code = code_str.replace(operand_to_replace, x_var + str(count))
-                                self.statements[next_node] = new_statement
-                                self.code[next_node] = new_code
-                            #if the other slot was the random one then we assign this to the 
-                            elif operand_to_replace == self.operands[0]:
-                                new_statement = statement.replace(self.operands[1], x_var +str(count))
-                                new_code = code_str.replace(self.operands[1], x_var + str(count))
-                                self.statements[next_node] = new_statement
-                                self.code[next_node] = new_code
-                            #if we the other slot is the free one
-                            elif operand_to_replace == self.operands[1]:
-                                new_statement = statement.replace(self.operands[0], x_var +str(count))
-                                new_code = code_str.replace(operand_to_replace, x_var + str(count))
-                                self.statements[next_node] = new_statement
-                                self.code[next_node] = new_code
+                        self.update_statements(next_node, statement, code_str, operand_to_replace, x_var, count)
                     #if the following statements is a return statement then we can return the variable we just stored
                     elif self.keywords[0] in statement:
                         new_statement = statement.replace(self.operands[0], x_var +str(count))
@@ -190,24 +152,7 @@ class ProgrammingGenerator:
                     operand_to_replace = random.choice(self.operands)
                     statement = self.statements[index]
                     code_str = self.code[index]
-                    if self.operands[0] in self.statements[index] and self.operands[1] in self.statements[index]:
-                        if operand_to_replace in statement:
-                            new_statement = statement.replace(operand_to_replace, str(rand_number))
-                            new_code = code_str.replace(operand_to_replace, str(rand_number))
-                            self.statements[index] = new_statement
-                            self.code[index] = new_code
-                        #if we the other slot is the free one
-                        elif operand_to_replace == self.operands[0]:
-                            new_statement = statement.replace(self.operands[1], str(rand_number))
-                            new_code = code_str.replace(self.operands[1], str(rand_number))
-                            self.statements[index] = new_statement
-                            self.code[index] = new_code
-                        #if we the other slot is the free one
-                        elif operand_to_replace == self.operands[1]:
-                            new_statement = statement.replace(self.operands[0], str(rand_number))
-                            new_code = code_str.replace(self.operands[0], str(rand_number))
-                            self.statements[index] = new_statement
-                            self.code[index] = new_code
+                    self.update_statements(index, statement, code_str, operand_to_replace, x_var, count)
 
 
         #get the statements that have 2 wholes to fill up and assign at least one random int to these, no matter if it is a critical node or not
@@ -215,6 +160,25 @@ class ProgrammingGenerator:
         self.fill_remaining()
         self.build_statements()
 
+
+    def update_statements(self, index, statement, code_str, operand_to_replace, x_var, count):
+        if self.operands[0] in statement and self.operands[1] in statement:
+            if operand_to_replace in statement:
+                new_statement = statement.replace(operand_to_replace, x_var +str(count))
+                new_code = code_str.replace(operand_to_replace, x_var + str(count))
+                self.statements[index] = new_statement
+                self.code[index] = new_code
+            #if the other slot was the random one then we assign this to the 
+            elif operand_to_replace == self.operands[0]:
+                new_statement = statement.replace(self.operands[1], x_var +str(count))
+                new_code = code_str.replace(self.operands[1], x_var + str(count))
+                self.statements[index] = new_statement
+                self.code[index] = new_code
+            #if we the other slot is the free one
+            elif operand_to_replace == self.operands[1]:
+                new_statement = statement.replace(self.operands[0], x_var +str(count))
+                new_code = code_str.replace(operand_to_replace, x_var + str(count))
+                self.statements[index] = new_statement
 
     #this function adds input parameters into the statement
     def add_function_input(self, complexity):
@@ -317,7 +281,6 @@ class ProgrammingGenerator:
             random_entry = random.choice(entry_list)
             statement_str = random_entry[1]
             code_str = node_op[random_entry[0]]
-
             return statement_str, code_str, type_of_operation
 
         elif type_of_operation == "condition":
@@ -325,7 +288,6 @@ class ProgrammingGenerator:
             random_entry = random.choice(entry_list)
             statement_str = random_entry[1]
             code_str = node_cond[random_entry[0]]
-            
             return statement_str, code_str, type_of_operation
     
 
@@ -335,15 +297,19 @@ class ProgrammingGenerator:
 
         for node in graph_list_keys:
             node_numbers = self.graph[node]
+            statement = self.statements[node]
+            code_str = self.code[node]
             if node_numbers == None:
                 break
             elif len(node_numbers) == 2:
                 #we add replace each action with its corresponding key in the statements slot
-                self.statements[node] = self.statements[node].replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
-                self.code[node] = self.code[node].replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
+                statement = self.statements[node]
+                code_str = self.code[node]
+                self.statements[node] = statement.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
+                self.code[node] = code_str.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
             else:
-                self.statements[node] = self.statements[node].replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
-                self.code[node] = self.code[node].replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
+                self.statements[node] = statement.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
+                self.code[node] = code_str.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
 
 
         for node in graph_list_keys:
@@ -351,8 +317,27 @@ class ProgrammingGenerator:
                 current = "{" + str(i) + "}"
                 if current in self.statements[node]:
                     self.statements[node] = self.statements[node].replace(current, self.statements[i])
-                    self.code[node] = self.code[node].replace(current, self.code[i])
+                    self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
+
+    def intent_code(self):
+        #how is this done in a good way?
+        outer_stack = []
+
+        print(self.code[1])
+        new_list = self.code[1].split('\n')
+
+        final_list = []
+        #we have to remove empty spaces from list
+        for node in new_list:
+            if '' != node:
+                final_list.append(node)
+
+        for nodes in final_list:
+            if "If" in final_list:
+                new_stack = []
+                new_stack.append(nodes)
+                outer_stack.append(new_stack)
 
 
 generator = ProgrammingGenerator()
