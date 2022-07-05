@@ -44,7 +44,10 @@ class ProgrammingGenerator:
 
 
     def start(self, complexity):
+        balance_counter = 0
         random_option = random.choice(self.statement_options)
+        if random_option == self.statement_options[1]:
+            balance_counter+=1
         head_node, code_str, type_of_operation = self.generate(random_option)
         key = 1
         self.statements = {key: head_node}
@@ -54,34 +57,39 @@ class ProgrammingGenerator:
             self.graph = {key: ["A"]}
         else:
             self.graph = {key: ["A", "B"]}
-
+        
         for i in range(complexity):
             #generate random condition or operation node
             random_option = random.choice(self.statement_options)
+            if random_option == self.statement_options[1]:
+                balance_counter+=1
             new_statement, code_str, type_of_operation = self.generate(random_option)
             key = self.attach_nodes(new_statement, code_str, key, type_of_operation)
 
+        #if we have generated to many of conditional statements we treat the generation as a failure
+        if balance_counter >= complexity:
+            return False
 
+        else:
+            #Finally, we attach return nodes to all the remaining slots. return nodes are terminal and there fore lead to none
+            for index in range(1, len(self.graph) + 1):
+                if self.actions[0] in self.graph[index]:
+                    key+=1
+                    self.graph[index][0] = key
+                    self.statements[key] = "return {1}"
+                    self.code[key] = node_ret
+                    self.graph[key] = None
+                if self.actions[1] in self.graph[index]:
+                    key+=1
+                    self.graph[index][1] = key
+                    self.statements[key] = "return {1}"
+                    self.code[key] = node_ret
+                    self.graph[key] = None
 
-        #Finally, we attach return nodes to all the remaining slots. return nodes are terminal and there fore lead to none
-        for index in range(1, len(self.graph) + 1):
-            if self.actions[0] in self.graph[index]:
-                key+=1
-                self.graph[index][0] = key
-                self.statements[key] = "return {1}"
-                self.code[key] = node_ret
-                self.graph[key] = None
-            if self.actions[1] in self.graph[index]:
-                key+=1
-                self.graph[index][1] = key
-                self.statements[key] = "return {1}"
-                self.code[key] = node_ret
-                self.graph[key] = None
+            self.assign_node_parameters(complexity)
+            self.indent_code()
 
-        self.assign_node_parameters(complexity)
-        self.indent_code()
-
-        return self.statements[1]
+            return self.statements[1]
 
 
     def assign_node_parameters(self, complexity):
