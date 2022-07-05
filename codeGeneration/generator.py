@@ -1,7 +1,4 @@
 import random
-import re
-import sys
-import time
 
 node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
@@ -82,7 +79,7 @@ class ProgrammingGenerator:
                 self.graph[key] = None
 
         self.assign_node_parameters(complexity)
-        self.intent_code()
+        self.indent_code()
 
         return self.statements[1]
 
@@ -129,7 +126,7 @@ class ProgrammingGenerator:
                     code_str = self.code[node]
                     self.update_statements(node, statement, code_str, operand_to_replace, x_var, count)
                 else:
-                    #we check if there is more then 1 node that is folling, and if this nodes is an operation node if this is the case then we assign one of the variables to this
+                    #we check if there is more then 1 node that is following, and if this nodes is an operation node if this is the case then we assign one of the variables to this
                     next_node = (list(visited)[1])
                     statement = self.statements[next_node]
                     code_str = self.code[next_node]
@@ -148,12 +145,22 @@ class ProgrammingGenerator:
                 #we check if it is a conditional statement, if it is we add a random number to one of the operands
 
                 if self.keywords[1] in self.statements[index]:
-                    rand_number = random.randint(0,100)
+                    rand_number = str(random.randint(0,100))
                     operand_to_replace = random.choice(self.operands)
                     statement = self.statements[index]
                     code_str = self.code[index]
-                    self.update_statements(index, statement, code_str, operand_to_replace, x_var, count)
 
+                    if operand_to_replace in statement:
+                        new_statement = statement.replace(operand_to_replace, rand_number)
+                        new_code = code_str.replace(operand_to_replace, rand_number)
+                    elif operand_to_replace == self.operands[0]:
+                        new_statement = statement.replace(self.operands[1], rand_number)
+                        new_code = code_str.replace(self.operands[1], rand_number)
+                    elif operand_to_replace == self.operands[1]:
+                        new_statement = statement.replace(self.operands[0], rand_number)
+                        new_code = code_str.replace(self.operands[0], rand_number)
+                    self.statements[index] = new_statement
+                    self.code[index] = new_code
 
         #get the statements that have 2 wholes to fill up and assign at least one random int to these, no matter if it is a critical node or not
         self.add_function_input(complexity)
@@ -188,9 +195,7 @@ class ProgrammingGenerator:
         for i in range(1, complexity):
             inputs_to_add.append(y_var+str(i))
 
-        graph_list_keys = list(self.graph.keys())
-        #we pick any random node from the graph and check if it has some free slot of any sort
-        random_node = random.choice(graph_list_keys)
+        graph_list_keys = list(self.graph.keys()) #we pick any random node from the graph and check if it has some free slot of any sort random_node = random.choice(graph_list_keys)
         operand_to_replace = random.choice(self.operands)
 
         max_tries = 100
@@ -305,26 +310,27 @@ class ProgrammingGenerator:
                 #we add replace each action with its corresponding key in the statements slot
                 statement = self.statements[node]
                 code_str = self.code[node]
-                self.statements[node] = statement.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
-                self.code[node] = code_str.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}").replace(self.action_slots[1], "{" + str(node_numbers[1]) + "}")
+                first_key = str(node_numbers[0])
+                second_key = str(node_numbers[1])
+                self.statements[node] = statement.replace(self.action_slots[0], f"{ {first_key} }").replace(self.action_slots[1], f"{ {second_key} }")
+                self.code[node] = code_str.replace(self.action_slots[0], f"{ {first_key} }").replace(self.action_slots[1], f"{ {second_key} }")
             else:
-                self.statements[node] = statement.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
-                self.code[node] = code_str.replace(self.action_slots[0], "{" + str(node_numbers[0]) + "}")
+                first_key = str(node_numbers[0])
+                self.statements[node] = statement.replace(self.action_slots[0], f"{ {first_key} }")
+                self.code[node] = code_str.replace(self.action_slots[0], f"{ {first_key} }")
 
 
         for node in graph_list_keys:
-            for i in range(1, len(graph_list_keys)+1):
-                current = "{" + str(i) + "}"
+            for i in range(1, len(graph_list_keys) + 1):
+                current = f"{ {str(i)} }"
                 if current in self.statements[node]:
                     self.statements[node] = self.statements[node].replace(current, self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
 
-    def intent_code(self):
+    def indent_code(self):
         #how is this done in a good way?
-        outer_stack = []
 
-        print(self.code[1])
         new_list = self.code[1].split('\n')
 
         final_list = []
@@ -333,11 +339,20 @@ class ProgrammingGenerator:
             if '' != node:
                 final_list.append(node)
 
+
+        stack = []
+        prev = ""
+
         for nodes in final_list:
-            if "If" in final_list:
-                new_stack = []
-                new_stack.append(nodes)
-                outer_stack.append(new_stack)
+            if "if" in nodes:
+                print(len(stack)*'\t' + nodes)
+                stack.append(nodes)
+            elif "else" in nodes:
+                stack.pop()
+                print(len(stack)*'\t' + nodes)
+            else:
+                print(len(stack)*'\t' + nodes)
+
 
 
 generator = ProgrammingGenerator()
