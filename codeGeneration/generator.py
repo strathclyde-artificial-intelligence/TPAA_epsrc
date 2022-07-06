@@ -1,4 +1,5 @@
 import random
+import sys
 
 node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
@@ -27,7 +28,7 @@ conditionals = {
         "condition1": "If {1} and {2} are equal: [A]. otherwise, [B]", 
         "condition2": "If {1} is greater than or equal to {2}: [A]. otherwise, [B]", 
         "condition3": "If {1} is less than or equal to {2}: [A]. otherwise, [B]", 
-        "condition4": "If {1} is less than {2}: [A]. otherwise, [B]", 
+        "condition4": "If {1} is less than {2} [A]. otherwise, [B]", 
         "condition5": "If {1} is greater than {2}: [A]. otherwise, [B]", 
         }
 
@@ -47,6 +48,7 @@ class ProgrammingGenerator:
         self.operands = ["{1}", "{2}"]
         self.output = "{O}"
         self.keywords = ["return {1}", "If", "Get"]
+        self.code_keywords = ["if", "else", "return"]
 
 
     def start(self, complexity):
@@ -199,6 +201,7 @@ class ProgrammingGenerator:
                 new_statement = statement.replace(self.operands[0], x_var +str(count))
                 new_code = code_str.replace(self.operands[0], x_var + str(count))
                 self.statements[index] = new_statement
+                self.code[index] = new_code
 
     #this function adds input parameters into the statement
     def add_function_input(self, complexity):
@@ -335,15 +338,14 @@ class ProgrammingGenerator:
             for i in range(1, len(graph_list_keys) + 1):
                 current = f"{ {str(i)} }"
                 if current in self.statements[node]:
-                    self.statements[node] = self.statements[node].replace(current, '\n' + self.statements[i])
+                    self.statements[node] = self.statements[node].replace(current, self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
 
     def indent_code(self):
         #how is this done in a good way?
         new_list = self.code[1].split('\n')
-        state = self.statements[1].split('\n')
-        print(state)
+        state = self.statements[1].split('.')
 
         final_list = []
         #we have to remove empty spaces from list
@@ -354,16 +356,17 @@ class ProgrammingGenerator:
         stack = []
         #empty string which we build statement on
         solution_code = ""
+        print(state)
 
         #works but this is a cheeky solution...
         for node in final_list:
-            if "if" in node:
+            if self.code_keywords[0] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
                 stack.append(node)
-            elif "else" in node:
+            elif self.code_keywords[1] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
                 stack.append(node)
-            elif "return" in node:
+            elif self.code_keywords[2] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
                 if len(stack) > 0:
                     stack.pop()
@@ -372,8 +375,6 @@ class ProgrammingGenerator:
 
         print(solution_code)
         sys.exit(0)
-
-
 
 
 generator = ProgrammingGenerator()
