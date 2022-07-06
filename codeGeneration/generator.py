@@ -9,6 +9,9 @@ node_op = {
 node_cond = {
         "condition1": "if {1} == {2}: [A]else: [B]", 
         "condition2": "if {1} >= {2}: [A]else: [B]", 
+        "condition3": "if {1} <= {2}: [A]else: [B]", 
+        "condition4": "if {1} < {2}: [A]else: [B]", 
+        "condition5": "if {1} > {2}: [A]else: [B]", 
         }
 
 node_ret = "return {1}"
@@ -23,6 +26,9 @@ operations = {
 conditionals = {
         "condition1": "If {1} and {2} are equal: [A]. otherwise, [B]", 
         "condition2": "If {1} is greater than or equal to {2}: [A]. otherwise, [B]", 
+        "condition3": "If {1} is less than or equal to {2}: [A]. otherwise, [B]", 
+        "condition4": "If {1} is less than {2}: [A]. otherwise, [B]", 
+        "condition5": "If {1} is greater than {2}: [A]. otherwise, [B]", 
         }
 
 operation_ret = {
@@ -78,13 +84,13 @@ class ProgrammingGenerator:
                     self.graph[index][0] = key
                     self.statements[key] = "return {1}"
                     self.code[key] = node_ret
-                    self.graph[key] = None
+                    self.graph[key] = [] 
                 if self.actions[1] in self.graph[index]:
                     key+=1
                     self.graph[index][1] = key
                     self.statements[key] = "return {1}"
                     self.code[key] = node_ret
-                    self.graph[key] = None
+                    self.graph[key] = [] 
 
             self.assign_node_parameters(complexity)
             self.indent_code()
@@ -151,7 +157,6 @@ class ProgrammingGenerator:
                 count+=1
             else:
                 #we check if it is a conditional statement, if it is we add a random number to one of the operands
-
                 if self.keywords[1] in self.statements[index]:
                     rand_number = str(random.randint(0,100))
                     operand_to_replace = random.choice(self.operands)
@@ -177,7 +182,7 @@ class ProgrammingGenerator:
 
 
     def update_statements(self, index, statement, code_str, operand_to_replace, x_var, count):
-        if self.operands[0] in statement and self.operands[1] in statement:
+        if self.operands[0] in statement or self.operands[1] in statement:
             if operand_to_replace in statement:
                 new_statement = statement.replace(operand_to_replace, x_var +str(count))
                 new_code = code_str.replace(operand_to_replace, x_var + str(count))
@@ -192,7 +197,7 @@ class ProgrammingGenerator:
             #if we the other slot is the free one
             elif operand_to_replace == self.operands[1]:
                 new_statement = statement.replace(self.operands[0], x_var +str(count))
-                new_code = code_str.replace(operand_to_replace, x_var + str(count))
+                new_code = code_str.replace(self.operands[0], x_var + str(count))
                 self.statements[index] = new_statement
 
     #this function adds input parameters into the statement
@@ -241,12 +246,10 @@ class ProgrammingGenerator:
     
     def dfs(self, visited, node):  #function for dfs 
         if node not in visited:
-            visited.add(node)
-            if self.graph[node] == None:
-                return visited
-            else:
-                for neighbour in self.graph[node]:
-                    self.dfs(visited, neighbour)
+            if node not in visited:
+                visited.add(node)
+            for neighbour in self.graph[node]:
+                self.dfs(visited, neighbour)
         return visited
     
 
@@ -312,7 +315,7 @@ class ProgrammingGenerator:
             node_numbers = self.graph[node]
             statement = self.statements[node]
             code_str = self.code[node]
-            if node_numbers == None:
+            if node_numbers == []:
                 break
             elif len(node_numbers) == 2:
                 #we add replace each action with its corresponding key in the statements slot
@@ -332,14 +335,15 @@ class ProgrammingGenerator:
             for i in range(1, len(graph_list_keys) + 1):
                 current = f"{ {str(i)} }"
                 if current in self.statements[node]:
-                    self.statements[node] = self.statements[node].replace(current, self.statements[i])
+                    self.statements[node] = self.statements[node].replace(current, '\n' + self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
 
     def indent_code(self):
         #how is this done in a good way?
-
         new_list = self.code[1].split('\n')
+        state = self.statements[1].split('\n')
+        print(state)
 
         final_list = []
         #we have to remove empty spaces from list
@@ -347,19 +351,28 @@ class ProgrammingGenerator:
             if '' != node:
                 final_list.append(node)
 
-
         stack = []
-        prev = ""
+        #empty string which we build statement on
+        solution_code = ""
 
-        for nodes in final_list:
-            if "if" in nodes:
-                print(len(stack)*'\t' + nodes)
-                stack.append(nodes)
-            elif "else" in nodes:
-                stack.pop()
-                print(len(stack)*'\t' + nodes)
+        #works but this is a cheeky solution...
+        for node in final_list:
+            if "if" in node:
+                solution_code += '\n' + len(stack)*'\t' + node
+                stack.append(node)
+            elif "else" in node:
+                solution_code += '\n' + len(stack)*'\t' + node
+                stack.append(node)
+            elif "return" in node:
+                solution_code += '\n' + len(stack)*'\t' + node
+                if len(stack) > 0:
+                    stack.pop()
             else:
-                print(len(stack)*'\t' + nodes)
+                solution_code += '\n' + len(stack)*'\t' + node
+
+        print(solution_code)
+        sys.exit(0)
+
 
 
 
