@@ -94,8 +94,8 @@ class ProgrammingGenerator:
                     self.code[key] = node_ret
                     self.graph[key] = [] 
 
-            self.assign_node_parameters(complexity)
-            self.indent_code()
+            if self.assign_node_parameters(complexity) == False:
+                return False
 
             return self.statements[1]
 
@@ -178,9 +178,12 @@ class ProgrammingGenerator:
                     self.code[index] = new_code
 
         #get the statements that have 2 wholes to fill up and assign at least one random int to these, no matter if it is a critical node or not
-        self.add_function_input(complexity)
+        check = self.add_function_input(complexity)
+        if check == False:
+            return False
         self.fill_remaining()
         self.build_statements()
+        self.indent_code()
 
 
     def update_statements(self, index, statement, code_str, operand_to_replace, x_var, count):
@@ -214,10 +217,13 @@ class ProgrammingGenerator:
         graph_list_keys = list(self.graph.keys()) #we pick any random node from the graph and check if it has some free slot of any sort random_node = random.choice(graph_list_keys)
         operand_to_replace = random.choice(self.operands)
 
-        max_tries = 100
+        max_tries = 0
         count = 0
 
         while count < len(inputs_to_add):
+            #run time check
+            if max_tries == 100:
+                return False
             random_node = random.choice(graph_list_keys)
             operand_to_replace = random.choice(self.operands)
             if operand_to_replace in self.statements[random_node]:
@@ -226,6 +232,7 @@ class ProgrammingGenerator:
                 self.statements[random_node] = new_statement
                 self.code[random_node] = new_code
                 count+=1
+            max_tries+=1
             
 
     def fill_remaining(self):
@@ -354,7 +361,6 @@ class ProgrammingGenerator:
                 final_list.append(node)
 
         stack = []
-        #empty string which we build statement on
         solution_code = ""
         print(state)
 
