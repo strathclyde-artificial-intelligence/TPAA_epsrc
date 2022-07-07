@@ -1,4 +1,5 @@
 import random
+from math import inf
 import sys
 
 node_op = {
@@ -19,17 +20,17 @@ node_ret = "return {1}"
 
 
 operations = {
-        "operation1": "Get the total of {1} + {2}, store the result in {O}. [A]", 
-        "operation2": "Get the product of {1} * {2}, store the result in {O}. [A]", 
-        "operation3": "Get the total of {1} - {2}, store the result in {O}. [A]", 
+        "operation1": "Get the total of {1} + {2}, store the result in {O}.:[A]", 
+        "operation2": "Get the product of {1} * {2}, store the result in {O}.:[A]", 
+        "operation3": "Get the total of {1} - {2}, store the result in {O}.:[A]", 
         }
 
 conditionals = {
-        "condition1": "If {1} and {2} are equal: [A]. otherwise, [B]", 
-        "condition2": "If {1} is greater than or equal to {2}: [A]. otherwise, [B]", 
-        "condition3": "If {1} is less than or equal to {2}: [A]. otherwise, [B]", 
-        "condition4": "If {1} is less than {2} [A]. otherwise, [B]", 
-        "condition5": "If {1} is greater than {2}: [A]. otherwise, [B]", 
+        "condition1": "If {1} and {2} are equal:[A]:otherwise,:[B]", 
+        "condition2": "If {1} is greater than or equal to {2}:[A]:otherwise,:[B]", 
+        "condition3": "If {1} is less than or equal to {2}:[A]:otherwise,:[B]", 
+        "condition4": "If {1} is less than {2}:[A]:otherwise,:[B]", 
+        "condition5": "If {1} is greater than {2}:[A]:otherwise,:[B]", 
         }
 
 operation_ret = {
@@ -42,6 +43,7 @@ class ProgrammingGenerator:
         self.graph = {}
         self.statements = {}
         self.code = {}
+        self.problem_object = {}
         self.statement_options = ["operation", "condition"]
         self.actions = ["A", "B"]
         self.action_slots = ["[A]", "[B]"]
@@ -96,8 +98,8 @@ class ProgrammingGenerator:
 
             if self.assign_node_parameters(complexity) == False:
                 return False
-
-            return self.statements[1]
+            else:
+                return self.problem_object
 
 
     def assign_node_parameters(self, complexity):
@@ -352,7 +354,7 @@ class ProgrammingGenerator:
     def indent_code(self):
         #how is this done in a good way?
         new_list = self.code[1].split('\n')
-        state = self.statements[1].split('.')
+        output_statements = self.statements[1].split(':')
 
         final_list = []
         #we have to remove empty spaces from list
@@ -362,25 +364,44 @@ class ProgrammingGenerator:
 
         stack = []
         solution_code = ""
-        print(state)
+        problem_statement = ""
 
-        #works but this is a cheeky solution...
+        #this does work for all cases, but its not a pretty solution, based on return always ending each code segment
         for node in final_list:
             if self.code_keywords[0] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
-                stack.append(node)
+                stack.append(0)
             elif self.code_keywords[1] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
-                stack.append(node)
+                stack.append(1)
             elif self.code_keywords[2] in node:
                 solution_code += '\n' + len(stack)*'\t' + node
                 if len(stack) > 0:
-                    stack.pop()
+                    popped = -inf
+                    while popped != 0 and len(stack) > 0:
+                        popped = stack.pop()
             else:
                 solution_code += '\n' + len(stack)*'\t' + node
 
-        print(solution_code)
-        sys.exit(0)
+        for node in output_statements:
+            if "If" in node:
+                problem_statement += '\n' + len(stack)*'  ' + node
+                stack.append(0)
+            elif "otherwise" in node:
+                problem_statement += '\n' + len(stack)*'  ' + node
+                stack.append(1)
+            elif "return" in node:
+                problem_statement += '\n' + len(stack)*'  ' + node
+                if len(stack) > 0:
+                    popped = -inf
+                    while popped != 0 and len(stack) > 0:
+                        popped = stack.pop()
+            else:
+                problem_statement += '\n' + len(stack)*'  ' + node
+        
+
+        self.problem_object["statement"] = problem_statement
+        self.problem_object["code"] = solution_code 
 
 
 generator = ProgrammingGenerator()
