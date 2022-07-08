@@ -1,6 +1,6 @@
 import random
 from math import inf
-import sys
+import json 
 
 node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
@@ -49,7 +49,7 @@ class ProgrammingGenerator:
         self.action_slots = ["[A]", "[B]"]
         self.operands = ["{1}", "{2}"]
         self.output = "{O}"
-        self.keywords = ["return {1}", "If", "Get"]
+        self.keywords = ["return {1}", "If", "Get", "otherwise"]
         self.code_keywords = ["if", "else", "return"]
 
 
@@ -99,7 +99,7 @@ class ProgrammingGenerator:
             if self.assign_node_parameters(complexity) == False:
                 return False
             else:
-                return self.problem_object
+                return json.dumps(self.problem_object, indent=2)
 
 
     def assign_node_parameters(self, complexity):
@@ -185,7 +185,8 @@ class ProgrammingGenerator:
             return False
         self.fill_remaining()
         self.build_statements()
-        self.indent_code()
+        problem_statement, solution_code = self.indent_code()
+        self.build_problem(complexity, problem_statement, solution_code)
 
 
     def update_statements(self, index, statement, code_str, operand_to_replace, x_var, count):
@@ -350,6 +351,33 @@ class ProgrammingGenerator:
                     self.statements[node] = self.statements[node].replace(current, self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
+    def build_problem(self, complexity, problem_statement, solution_code):
+        #self.problem_object["code"] = solution_code 
+        y_var = "y"
+
+        number_of_tests = 3
+        test_cases = []
+
+        for i in range(number_of_tests):
+            input_parameters = []
+            for j in range(complexity - 1):
+                rand_num = random.randint(1,100)
+                input_parameters.append(rand_num)
+            test_cases.append(input_parameters)
+
+        input_var = ""
+        for i in range(1, complexity):
+            if i == complexity - 1:
+                input_var += y_var+str(i)
+            else:
+                input_var += y_var+str(i)+", "
+
+        function_str = f"def problem({input_var}):"
+
+        self.problem_object["statement"] = problem_statement
+        self.problem_object["code"] = function_str + solution_code
+        self.problem_object["tests"] = test_cases
+
 
     def indent_code(self):
         #how is this done in a good way?
@@ -366,6 +394,7 @@ class ProgrammingGenerator:
         solution_code = ""
         problem_statement = ""
 
+        stack.append(-1)
         #this does work for all cases, but its not a pretty solution, based on return always ending each code segment
         for node in final_list:
             if self.code_keywords[0] in node:
@@ -378,30 +407,29 @@ class ProgrammingGenerator:
                 solution_code += '\n' + len(stack)*'\t' + node
                 if len(stack) > 0:
                     popped = -inf
-                    while popped != 0 and len(stack) > 0:
+                    while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
                 solution_code += '\n' + len(stack)*'\t' + node
 
         for node in output_statements:
-            if "If" in node:
+            if self.keywords[1] in node:
                 problem_statement += '\n' + len(stack)*'  ' + node
                 stack.append(0)
-            elif "otherwise" in node:
+            elif self.keywords[3] in node:
                 problem_statement += '\n' + len(stack)*'  ' + node
                 stack.append(1)
-            elif "return" in node:
+            #we can use code keywords, because return is the same in both
+            elif self.code_keywords[2] in node:
                 problem_statement += '\n' + len(stack)*'  ' + node
                 if len(stack) > 0:
                     popped = -inf
-                    while popped != 0 and len(stack) > 0:
+                    while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
                 problem_statement += '\n' + len(stack)*'  ' + node
+        return problem_statement, solution_code
         
-
-        self.problem_object["statement"] = problem_statement
-        self.problem_object["code"] = solution_code 
 
 
 generator = ProgrammingGenerator()
