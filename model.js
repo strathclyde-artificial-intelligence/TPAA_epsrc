@@ -7,6 +7,7 @@ class Model {
 		this.problemObject;
 		this.tokenObject;
 		this.codeOutput;
+		this.solutionOutput
 	}
 
 	fetchProblemObject(editor, problemNumber, setCode, setProblemStatement) {
@@ -28,25 +29,66 @@ class Model {
 			view.changeActiveButton("Problem");
 		});
 
-		let URL = "index.php/?func="+problemNumber;
+		let URL = "index.php";
 		xhr.open("GET", URL, true);
 		xhr.send();
 	}
 
 	setLocalStorage(nameOfCurrentProblem) {
-		console.log(nameOfCurrentProblem);
 		localStorage.setItem("currentProblem", nameOfCurrentProblem);
 	}
 
 	setLocalStorage(nameOfCurrentProblem) {
-		console.log(nameOfCurrentProblem);
 		localStorage.setItem("currentProblem", nameOfCurrentProblem);
 
 	}
 
+	sendSolutionRequest(solutionCode, runStr) {
+
+		
+		let test = solutionCode + '\n' + runStr;
+		let newData = btoa(test);
+
+		let xhr = new XMLHttpRequest();
+		const that = this;
+
+		xhr.addEventListener("load", function() {
+			let text = this.responseText;
+			let jsonObj = JSON.parse(text);
+			that.fetchSolutionResult(jsonObj.token);
+		});
+
+		let URL = "send.php/?code="+newData;
+		xhr.open("GET", URL, true);
+		xhr.send();
+
+	}
+
+	setTokenObject(tokenReceived) {
+		this.tokenObject = tokenReceived;
+	}
+
+	fetchSolutionResult(token) {
+		
+		const that = this;
+		let xhr = new XMLHttpRequest();
+
+		xhr.addEventListener("readystatechange", function() {
+			if(this.readyState == this.DONE) {
+				let collectedData = this.responseText;
+				let data = JSON.parse(collectedData);
+				that.setSolutionOutput(atob(data.stdout));
+			}
+		});
+
+		let URL = "getCode.php/?token="+token;
+		xhr.open("GET", URL, true);
+		xhr.send();
+	}
+
 	sendCodeRequest(codeRan, setCodeOutputBox, removeLoadingAnimation, testString) {
 		
-		let combinedCode = codeRan + testString;
+		let combinedCode = codeRan + '\n' + testString;
 		let newData = btoa(combinedCode);
 
 		let xhr = new XMLHttpRequest();
@@ -55,7 +97,6 @@ class Model {
 		xhr.addEventListener("load", function() {
 			let text = this.responseText;
 			let jsonObj = JSON.parse(text);
-			console.log(jsonObj);
 			that.fetchCodeResult(jsonObj.token, setCodeOutputBox, removeLoadingAnimation);
 		});
 
@@ -78,7 +119,6 @@ class Model {
 			if(this.readyState == this.DONE) {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
-				console.log(data);
 				if(data.stdout === null) {
 					view.removeLoadingAnimation();
 					view.setCodeOutputBox("error");
@@ -95,6 +135,11 @@ class Model {
 		xhr.send();
 	}
 
+	setSolutionOutput(solutionOutput) {
+		this.solutionOutput = solutionOutput
+
+	}
+
 	setProblemObject(jsonObj) {
 		this.problemObject = jsonObj;
 	}
@@ -103,6 +148,9 @@ class Model {
 		this.codeOutput = output;
 	}
 
+	getSolutionOutput() {
+		return this.solutionOutput;
+	}
 	getProblemOutput() {
 		return this.codeOutput;
 	}

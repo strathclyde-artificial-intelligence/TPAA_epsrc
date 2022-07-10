@@ -25,38 +25,29 @@ const initalise = evt => {
 		view.setCodeOutputBox("");
 		view.showLoadingAnimation();
 		let code = view.getCode(editor);
-		console.log(code);
 		let solutionObject = model.getProblemObject();
-		model.sendCodeRequest(code, view.setOutputBox, view.removeLoadingAnimation, solutionObject.testCases);
+		model.sendSolutionRequest(solutionObject.testCase, solutionObject.testCaseStr);
+		model.sendCodeRequest(code, view.setOutputBox, view.removeLoadingAnimation, solutionObject.testCaseStr);
+		
 
 	});
 
 	view.setUpSubmitHandler(() => {
-		let solutionObject = model.getProblemObject();
 		let outputCode = model.getProblemOutput();
+		let solutionCode = model.getSolutionOutput();
 		//if code has not been run, outputCode object will be undefined so we have to check this
+		let test = model.getSolutionOutput();
+
 		if(outputCode == undefined) {
 			view.setOutputText("Before you submit your code make sure to run it.");
 		} else {
-			let cleanSolutionText = solutionObject.testOutput.replace(/^[0-9\s]*|[+*\r\n]/g, "")
-			let cleanOutpuText = outputCode.replace(/^[0-9\s]*|[+*\r\n]/g, "");
 
-			if (cleanSolutionText == cleanOutpuText) {
-
+			if (outputCode == solutionCode) {
 				view.setOutputText("Correct");
-				let currentIndex = numbers.indexOf(currentProblem);
-
-				if(currentIndex < 4) { 
-					model.setLocalStorage(numbers[currentIndex+1]);
-					view.showNextButton();
-				}
-				//reset to the first problem if we have come to a last problem and made it will
-				if(currentIndex == 4) {
-					view.setOutputText("Correct");
-					model.setLocalStorage("One");
-					view.showNextButton();
-				}
-			} 
+				view.showNextButton();
+			} else {
+				view.setOutputText("Incorrect answer.");
+			}
 		}
 
 	});

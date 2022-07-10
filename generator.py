@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import random
 from math import inf
 import json 
@@ -99,7 +100,7 @@ class ProgrammingGenerator:
             if self.assign_node_parameters(complexity) == False:
                 return False
             else:
-                return json.dumps(self.problem_object, indent=2)
+                return json.dumps(self.problem_object)
 
 
     def assign_node_parameters(self, complexity):
@@ -357,13 +358,11 @@ class ProgrammingGenerator:
 
         number_of_tests = 3
         test_cases = []
+        input_parameters = []
 
-        for i in range(number_of_tests):
-            input_parameters = []
-            for j in range(complexity - 1):
-                rand_num = random.randint(1,100)
-                input_parameters.append(rand_num)
-            test_cases.append(input_parameters)
+        for j in range(complexity - 1):
+            rand_num = random.randint(1,100)
+            input_parameters.append(rand_num)
 
         input_var = ""
         for i in range(1, complexity):
@@ -372,11 +371,23 @@ class ProgrammingGenerator:
             else:
                 input_var += y_var+str(i)+", "
 
+
+        test_variables = ""
+
+        for i in range(len(input_parameters)):
+            if i == len(input_parameters) - 1:
+                test_variables += str(input_parameters[i]) 
+            else:
+                test_variables += str(input_parameters[i]) + ", "
+
         function_str = f"def problem({input_var}):"
+        run_str = f"print(problem({test_variables}))"
 
         self.problem_object["statement"] = problem_statement
-        self.problem_object["code"] = function_str + solution_code
-        self.problem_object["tests"] = test_cases
+        self.problem_object["code"] = function_str 
+        self.problem_object["testCase"] = function_str + solution_code
+        self.problem_object["testCaseStr"] = run_str
+        self.problem_object["solution"] = function_str + solution_code
 
 
     def indent_code(self):

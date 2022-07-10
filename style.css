@@ -12,8 +12,6 @@
 }
 
 .problemParagraph {
-  margin-left: 5%;
-  margin-right: 5%;
 }
 
 .editorContainer {
@@ -129,7 +127,7 @@
 }
 
 .tabContent {
-  display: none;
+  display: flex;
   animation: fadeEffect 1s;
 }
 
