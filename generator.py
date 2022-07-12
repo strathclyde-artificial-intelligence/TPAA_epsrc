@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import random
-import sys
 from math import inf
 import json 
 
@@ -8,8 +7,6 @@ node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
         "operation2": "{O} = {1} * {2} [A]", 
         "operation3": "{O} = {1} - {2} [A]", 
-        "operation4": "z = {1} + {2}\n{O} = z // 2 [A]", 
-        "operation5": "{O} = {1} % {2} [A]", 
         }
 
 node_cond = {
@@ -18,8 +15,6 @@ node_cond = {
         "condition3": "if {1} <= {2}: [A]else: [B]", 
         "condition4": "if {1} < {2}: [A]else: [B]", 
         "condition5": "if {1} > {2}: [A]else: [B]", 
-        "condition6": "if {1} % 2 == 0: [A]else: [B]", 
-        "condition7": "if {1} % 2 == 1: [A]else: [B]", 
         }
 
 node_ret = "return {1}"
@@ -29,8 +24,6 @@ operations = {
         "operation1": "Get the total of {1} + {2}, store the result in {O}.:[A]", 
         "operation2": "Get the product of {1} * {2}, store the result in {O}.:[A]", 
         "operation3": "Get the total of {1} - {2}, store the result in {O}.:[A]", 
-        "operation4": "Get the average of {1} and {2} rounded down, store the result in {O}.:[A]", 
-        "operation5": "Get the remainder of {1} divided by {2}, store the result in {O}.:[A]", 
         }
 
 conditionals = {
@@ -39,8 +32,6 @@ conditionals = {
         "condition3": "If {1} is less than or equal to {2}:[A]:otherwise,:[B]", 
         "condition4": "If {1} is less than {2}:[A]:otherwise,:[B]", 
         "condition5": "If {1} is greater than {2}:[A]:otherwise,:[B]", 
-        "condition6": "If {1} is even:[A]:otherwise,:[B]", 
-        "condition7": "If {1} is odd:[A]:otherwise,:[B]", 
         }
 
 operation_ret = {
@@ -50,7 +41,6 @@ operation_ret = {
 
 class ProgrammingGenerator:
     def __init__(self):
-        self.upper_boundry = 100
         self.graph = {}
         self.statements = {}
         self.code = {}
@@ -63,10 +53,9 @@ class ProgrammingGenerator:
         self.keywords = ["return {1}", "If", "Get", "otherwise"]
         self.code_keywords = ["if", "else", "return"]
 
-
     def start(self, complexity):
         """
-        Driver of the program initalises the first head node and the creates complexity amount of nodes and chains them together
+        Driver of the program initalises the first head node 
 
         Parameters:
         complexity (int): a number representing the difficulty of the problem
@@ -85,11 +74,33 @@ class ProgrammingGenerator:
         self.statements = {key: head_node}
         self.code = {key: code_str}
 
-        if type_of_operation == "operation":
+        if type_of_operation == self.statement_options[0]:
             self.graph = {key: [self.actions[0]]}
         else:
             self.graph = {key: [self.actions[0], self.actions[1]]}
+
         
+        if self.create_base_nodes(key, complexity, balance_counter) == False:
+            return False
+        else:
+            if self.assign_node_parameters(complexity) == False:
+                return False
+            else:
+                return json.dumps(self.problem_object)
+
+
+    def create_base_nodes(self, key, complexity, balance_counter):
+        """
+        Creates the defined amount of base nodes and craetes remaining return nodes
+
+        Parameters:
+        key (int): the key for the graph and the statements and code dict
+        complexity (int): the amount of base nodes to create
+        balance_counter (int): a check to make sure that the statements are balanced
+
+        Returns:
+        (bool): False if generation fails
+        """
         for i in range(complexity):
             #generate random condition or operation node
             random_option = random.choice(self.statement_options)
@@ -118,24 +129,7 @@ class ProgrammingGenerator:
                     self.code[key] = node_ret
                     self.graph[key] = [] 
 
-            if self.assign_node_parameters(complexity) == False:
-                return False
-            else:
-                return json.dumps(self.problem_object)
-
-
     def assign_node_parameters(self, complexity):
-        """
-        Assigns variables to all operation nodes and its predecessors nodes, 
-        this is done by checking reachability of each operation node with dfs and then picking a random predecessors to assign xi to.
-
-        Parameters:
-        complexity (int): a number representing the difficulty of the problem
-
-        Returns:
-        check (bool): returns false if generation have failed true if successful
-
-        """
         graph_list_keys = list(self.graph.keys())
         #We define a critical node as a node whose operation affects the outcome of the function. Initially, we add all return nodes and condition nodes to critical_nodes
         critical_nodes = set()
@@ -146,16 +140,20 @@ class ProgrammingGenerator:
                 critical_nodes.add(index)
 
         #we have a counter i which we assign to x variables for each operand node
+        y_var = "y"
         x_var = "x"
         count = 1
-        check = True
+        x_que = []
+        for i in range(1, complexity):
+            x_que.append(x_var + str(i))
 
+        #this needs to be refactored into more functions, rather then being a huge cluster....
         for index in graph_list_keys:
             if index not in critical_nodes:
                 statement = self.statements[index]
                 code_str = self.code[index]
-                new_statement = statement.replace(self.output, x_var+str(count))
-                new_code = code_str.replace(self.output, x_var+str(count))
+                new_statement = statement.replace(self.output, y_var+str(count))
+                new_code = code_str.replace(self.output, y_var+str(count))
                 self.statements[index] = new_statement
                 self.code[index] = new_code
 
@@ -169,33 +167,11 @@ class ProgrammingGenerator:
                     if node in critical_nodes and self.keywords[1] in self.statements[node]:
                         list_of_statements.append(node)
 
-                #if there follows more then 0 If nodes from index, then we pick a random one and assign X_num to one of its operands
-                if len(list_of_statements) > 0:
-                    node = random.choice(list_of_statements)
-                    operand_to_replace = random.choice(self.operands)
-                    statement = self.statements[node]
-                    code_str = self.code[node]
-                    self.update_statements(node, statement, code_str, operand_to_replace, x_var, count)
-                else:
-                    #we check if there is more then 1 node that is following, and if this nodes is an operation node if this is the case then we assign one of the variables to this
-                    next_node = (list(visited)[1])
-                    statement = self.statements[next_node]
-                    code_str = self.code[next_node]
-
-                    if self.keywords[2] in statement:
-                        operand_to_replace = random.choice(self.operands)
-                        self.update_statements(next_node, statement, code_str, operand_to_replace, x_var, count)
-                    #if the following statements is a return statement then we can return the variable we just stored
-                    elif self.keywords[0] in statement:
-                        new_statement = statement.replace(self.operands[0], x_var +str(count))
-                        new_code = code_str.replace(self.operands[0], x_var + str(count))
-                        self.statements[next_node] = new_statement
-                        self.code[next_node] = new_code
-                count+=1
+                count = self.assign_yvar_predecessor(y_var, count, list_of_statements, visited)
             else:
                 #we check if it is a conditional statement, if it is we add a random number to one of the operands
                 if self.keywords[1] in self.statements[index]:
-                    rand_number = str(random.randint(0,self.upper_boundry))
+                    rand_number = x_que.pop(0) 
                     operand_to_replace = random.choice(self.operands)
                     statement = self.statements[index]
                     code_str = self.code[index]
@@ -215,40 +191,79 @@ class ProgrammingGenerator:
         #get the statements that have 2 wholes to fill up and assign at least one random int to these, no matter if it is a critical node or not
         check = self.add_function_input(complexity)
         if check == False:
-            return check 
+            return False
         self.fill_remaining()
         self.build_statements()
         problem_statement, solution_code = self.indent_code()
         self.build_problem(complexity, problem_statement, solution_code)
-        return True 
+    
+    def assign_yvar_predecessor(self, y_var, count, list_of_statements, visited):
+        """
+        Assigns the Yi variable to an appropriate predecessors of the current node
+
+        Parameters:
+        y_var (str): 'y' letter
+        count (int): an int i which is combined with y_var
+        list_of_statements (list): list of int with the keys that are predecessors to current node
+        visited (list): list of int with the reachable nodes from current node
+
+        Returns:
+        count (int): an int i which is combined with y_var
+        """
+        
+        #if there follows more then 0 If nodes from index, then we pick a random one and assign y_num to one of its operands
+        if len(list_of_statements) > 0:
+            node = random.choice(list_of_statements)
+            operand_to_replace = random.choice(self.operands)
+            statement = self.statements[node]
+            code_str = self.code[node]
+            self.update_statements(node, statement, code_str, operand_to_replace, y_var, count)
+        else:
+            #we check if there is more then 1 node that is following, and if this nodes is an operation node if this is the case then we assign one of the variables to this
+            next_node = (list(visited)[1])
+            statement = self.statements[next_node]
+            code_str = self.code[next_node]
+
+            if self.keywords[2] in statement:
+                operand_to_replace = random.choice(self.operands)
+                self.update_statements(next_node, statement, code_str, operand_to_replace, y_var, count)
+            #if the followig statements is a return statement then we can return the variable we just stored
+            elif self.keywords[0] in statement:
+                new_statement = statement.replace(self.operands[0], y_var +str(count))
+                new_code = code_str.replace(self.operands[0], y_var + str(count))
+                self.statements[next_node] = new_statement
+                self.code[next_node] = new_code
+        count+=1
+        return count
 
 
-    def update_statements(self, index, statement, code_str, operand_to_replace, x_var, count):
+    def update_statements(self, index, statement, code_str, operand_to_replace, y_var, count):
         if self.operands[0] in statement or self.operands[1] in statement:
             if operand_to_replace in statement:
-                new_statement = statement.replace(operand_to_replace, x_var +str(count))
-                new_code = code_str.replace(operand_to_replace, x_var + str(count))
+                new_statement = statement.replace(operand_to_replace, y_var +str(count))
+                new_code = code_str.replace(operand_to_replace, y_var + str(count))
                 self.statements[index] = new_statement
                 self.code[index] = new_code
             #if the other slot was the random one then we assign this to the 
             elif operand_to_replace == self.operands[0]:
-                new_statement = statement.replace(self.operands[1], x_var +str(count))
-                new_code = code_str.replace(self.operands[1], x_var + str(count))
+                new_statement = statement.replace(self.operands[1], y_var +str(count))
+                new_code = code_str.replace(self.operands[1], y_var + str(count))
                 self.statements[index] = new_statement
                 self.code[index] = new_code
             #if we the other slot is the free one
             elif operand_to_replace == self.operands[1]:
-                new_statement = statement.replace(self.operands[0], x_var +str(count))
-                new_code = code_str.replace(self.operands[0], x_var + str(count))
+                new_statement = statement.replace(self.operands[0], y_var +str(count))
+                new_code = code_str.replace(self.operands[0], y_var + str(count))
                 self.statements[index] = new_statement
                 self.code[index] = new_code
 
+    #this function adds input parameters into the statement
     def add_function_input(self, complexity):
-        #takes (int): complexity and adds input variables  to the statements, return boolean True or False
-        y_var = "y"
+        x_var = "x"
+        #we create the number of input nodes, we do this by creating complexity - 1 input nodes, 
         inputs_to_add = []
         for i in range(1, complexity):
-            inputs_to_add.append(y_var+str(i))
+            inputs_to_add.append(x_var+str(i))
 
         graph_list_keys = list(self.graph.keys()) #we pick any random node from the graph and check if it has some free slot of any sort random_node = random.choice(graph_list_keys)
         operand_to_replace = random.choice(self.operands)
@@ -258,7 +273,7 @@ class ProgrammingGenerator:
 
         while count < len(inputs_to_add):
             #run time check
-            if max_tries == self.upper_boundry:
+            if max_tries == 100:
                 return False
             random_node = random.choice(graph_list_keys)
             operand_to_replace = random.choice(self.operands)
@@ -269,23 +284,21 @@ class ProgrammingGenerator:
                 self.code[random_node] = new_code
                 count+=1
             max_tries+=1
-        return True
             
 
     def fill_remaining(self):
-        #fills up the empty slots that are left in the statements
         graph_list_keys = list(self.graph.keys())
 
         #for all the statements in the graph, we add random numbers to all available slots
         for index in graph_list_keys:
             if self.operands[0] in self.statements[index]:
-                rand_number = str(random.randint(0, self.upper_boundry))
+                rand_number = str(random.randint(0, 100))
                 new_statement = self.statements[index].replace(self.operands[0], rand_number)
                 new_code = self.code[index].replace(self.operands[0], rand_number)
                 self.statements[index] = new_statement
                 self.code[index] = new_code
             if self.operands[1] in self.statements[index]:
-                rand_number = str(random.randint(0, self.upper_boundry))
+                rand_number = str(random.randint(0, 100))
                 new_statement = self.statements[index].replace(self.operands[1], rand_number)
                 new_code = self.code[index].replace(self.operands[1], rand_number)
                 self.statements[index] = new_statement
@@ -306,26 +319,13 @@ class ProgrammingGenerator:
         self.statements[key] = new_statement
         self.code[key] = code_str
         if type_of_operation == "operation":
-            self.graph[key] = [self.actions[0]]
+            self.graph[key] = ["A"]
         else:
-            self.graph[key] = [self.actions[0], self.actions[1]]
+            self.graph[key] = ["A", "B"]
         return key
 
 
     def attach_nodes(self, new_statement, code_str, key, type_of_operation):
-        """
-        Creates and attaches a new node to a free action slot in one of the already created nodes
-
-        Parameters:
-        new_statement (str): a text representation of the problem
-        code_str (str): a text representation of the code
-        key (int): the key which represents the index in the statement and code dicts
-        type_of_operation (str): a type of action
-
-        Returns:
-        key (int): the key which represents the index in the statement and code dicts
-
-        """
         random_key = random.choice(list(self.graph.keys()))
         new_list = self.graph[random_key]
         slot = random.choice(new_list)
@@ -345,24 +345,14 @@ class ProgrammingGenerator:
                     if random_key < key and slot in self.actions:
                         new_list[new_list.index(slot)] = key
                         self.graph[random_key] = new_list 
+                        return key
+
+                return False
 
         return key
 
 
     def generate(self, type_of_operation):
-        """
-        Generates an condition or operation node
-
-        Parameters:
-        type_of_operation (str): a type of action to generate
-
-        Returns:
-        statement_str (str): the action in a english language format
-        code_str (str): the action in a code format
-        type_of_operation (str): a type of action
-
-        """
-
         if type_of_operation == "operation":
             entry_list = list(operations.items())
             random_entry = random.choice(entry_list)
@@ -379,7 +369,7 @@ class ProgrammingGenerator:
     
 
     def build_statements(self):
-        #Builds statements in english text format and code format.
+        #think about how to create this build statement in a good way. Will be needed for code generation as well.
         graph_list_keys = list(self.graph.keys())
 
         for node in graph_list_keys:
@@ -392,14 +382,14 @@ class ProgrammingGenerator:
                 #we add replace each action with its corresponding key in the statements slot
                 statement = self.statements[node]
                 code_str = self.code[node]
-                first_key = f"{ {str(node_numbers[0])} }"
-                second_key = f"{ {str(node_numbers[1])} }"
-                self.statements[node] = statement.replace(self.action_slots[0], first_key).replace(self.action_slots[1], second_key)
-                self.code[node] = code_str.replace(self.action_slots[0], first_key).replace(self.action_slots[1], second_key)
+                first_key = str(node_numbers[0])
+                second_key = str(node_numbers[1])
+                self.statements[node] = statement.replace(self.action_slots[0], f"{ {first_key} }").replace(self.action_slots[1], f"{ {second_key} }")
+                self.code[node] = code_str.replace(self.action_slots[0], f"{ {first_key} }").replace(self.action_slots[1], f"{ {second_key} }")
             else:
-                first_key = f"{ {str(node_numbers[0])} }"
-                self.statements[node] = statement.replace(self.action_slots[0], first_key)
-                self.code[node] = code_str.replace(self.action_slots[0], first_key)
+                first_key = str(node_numbers[0])
+                self.statements[node] = statement.replace(self.action_slots[0], f"{ {first_key} }")
+                self.code[node] = code_str.replace(self.action_slots[0], f"{ {first_key} }")
 
 
         for node in graph_list_keys:
@@ -409,42 +399,33 @@ class ProgrammingGenerator:
                     self.statements[node] = self.statements[node].replace(current, self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
-
     def build_problem(self, complexity, problem_statement, solution_code):
-        """
-        Attaches the final strings and builds the complete problem object.
+        x_var = "x"
 
-        Parameters:
-        complexity (int): number representing complexity
-        problem_statement (str): problem statement text format
-        solution_code (str): Solution code in text format
-
-        """
-
-        y_var = "y"
         number_of_tests = 3
         test_cases = []
         input_parameters = []
+        separator = ", "
+        test_variables = ""
 
         for j in range(complexity - 1):
-            rand_num = random.randint(1,self.upper_boundry)
+            rand_num = random.randint(1,100)
             input_parameters.append(rand_num)
 
         input_var = ""
         for i in range(1, complexity):
             if i == complexity - 1:
-                input_var += y_var+str(i)
+                input_var += x_var+str(i)
             else:
-                input_var += y_var+str(i)+", "
+                input_var += x_var+str(i)+separator
 
 
-        test_variables = ""
 
         for i in range(len(input_parameters)):
             if i == len(input_parameters) - 1:
                 test_variables += str(input_parameters[i]) 
             else:
-                test_variables += str(input_parameters[i]) + ", "
+                test_variables += str(input_parameters[i]) + separator
 
         function_str = f"def problem({input_var}):"
         run_str = f"print(problem({test_variables}))"
@@ -457,7 +438,7 @@ class ProgrammingGenerator:
 
 
     def indent_code(self):
-        #indets the code and the statement in a more readable way and returns an indented statement and code
+        #how is this done in a good way?
         new_list = self.code[1].split('\n')
         output_statements = self.statements[1].split(':')
 
@@ -470,7 +451,7 @@ class ProgrammingGenerator:
         stack = []
         solution_code = ""
         problem_statement = ""
-        spaces = '  '
+        spaces = "  "
 
         stack.append(-1)
         #this does work for all cases, but its not a pretty solution, based on return always ending each code segment
@@ -492,22 +473,23 @@ class ProgrammingGenerator:
 
         for node in output_statements:
             if self.keywords[1] in node:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += '\n' + len(stack)*spaces + node
                 stack.append(0)
             elif self.keywords[3] in node:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += '\n' + len(stack)*spaces + node
                 stack.append(1)
             #we can use code keywords, because return is the same in both
             elif self.code_keywords[2] in node:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += '\n' + len(stack)*spaces+ node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += '\n' + len(stack)*spaces+ node
         return problem_statement, solution_code
         
+
 
 generator = ProgrammingGenerator()
 print(generator.start(3))
