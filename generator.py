@@ -348,7 +348,6 @@ class ProgrammingGenerator:
                         return key
 
                 return False
-
         return key
 
 
@@ -451,25 +450,26 @@ class ProgrammingGenerator:
         stack = []
         solution_code = ""
         problem_statement = ""
-        spaces = "  "
+        spaces = '  '  
+        tab = '    '
 
         stack.append(-1)
         #this does work for all cases, but its not a pretty solution, based on return always ending each code segment
         for node in final_list:
             if self.code_keywords[0] in node:
-                solution_code += '\n' + len(stack)*'\t' + node
+                solution_code += '\n' + len(stack)*tab+ node
                 stack.append(0)
             elif self.code_keywords[1] in node:
-                solution_code += '\n' + len(stack)*'\t' + node
+                solution_code += '\n' + len(stack)*tab+ node
                 stack.append(1)
             elif self.code_keywords[2] in node:
-                solution_code += '\n' + len(stack)*'\t' + node
+                solution_code += '\n' + len(stack)*tab + node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
-                solution_code += '\n' + len(stack)*'\t' + node
+                solution_code += '\n' + len(stack)*tab + node
 
         for node in output_statements:
             if self.keywords[1] in node:
@@ -480,13 +480,13 @@ class ProgrammingGenerator:
                 stack.append(1)
             #we can use code keywords, because return is the same in both
             elif self.code_keywords[2] in node:
-                problem_statement += '\n' + len(stack)*spaces+ node
+                problem_statement += '\n' + len(stack)* spaces + node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
-                problem_statement += '\n' + len(stack)*spaces+ node
+                problem_statement += '\n' + len(stack)* spaces + node
         return problem_statement, solution_code
         
 
