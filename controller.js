@@ -2,8 +2,6 @@ let model, view;
 let currentProblem = localStorage.getItem("currentProblem");
 
 const initalise = evt => {
-	//array of strings used for fetching from index.php
-	let numbers = ["One", "Two", "Three", "Four", "Five"];
 	
 	model = new Model();
 	view = new View();
@@ -11,7 +9,13 @@ const initalise = evt => {
 	let editor = CodeMirror.fromTextArea(
 		document.getElementById("codeEditor"),
 		{
+			smartIndent: false, 
 			lineNumbers: true,
+			electricChars: false, 
+			indentWithTabs: false, 
+			indentUnit: 4, 
+			extraKeys: {Tab: "indentMore"}, 
+			mode: null, 
 		}
 	  );
 
@@ -35,8 +39,6 @@ const initalise = evt => {
 	view.setUpSubmitHandler(() => {
 		let outputCode = model.getProblemOutput();
 		let solutionCode = model.getSolutionOutput();
-		//if code has not been run, outputCode object will be undefined so we have to check this
-		let test = model.getSolutionOutput();
 
 		if(outputCode == undefined) {
 			view.setOutputText("Before you submit your code make sure to run it.");

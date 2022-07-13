@@ -86,6 +86,7 @@ class ProgrammingGenerator:
             if self.assign_node_parameters(complexity) == False:
                 return False
             else:
+                print(self.problem_object["solution"])
                 return json.dumps(self.problem_object)
 
 
