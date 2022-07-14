@@ -401,16 +401,17 @@ class ProgrammingGenerator:
     def build_problem(self, complexity, problem_statement, solution_code):
         x_var = "x"
 
-        number_of_tests = 3
+        number_of_tests = 4 
         test_cases = []
-        input_parameters = []
         separator = ", "
-        test_variables = ""
 
-        for j in range(complexity - 1):
-            rand_num = random.randint(1,100)
-            input_parameters.append(rand_num)
-
+        for i in range(number_of_tests):
+            input_parameters = []
+            for j in range(complexity - 1):
+                rand_num = random.randint(1,100)
+                input_parameters.append(rand_num)
+            test_cases.append(input_parameters)
+        
         input_var = ""
         for i in range(1, complexity):
             if i == complexity - 1:
@@ -418,18 +419,23 @@ class ProgrammingGenerator:
             else:
                 input_var += x_var+str(i)+separator
 
+        test_case_array = []
 
+        for test in test_cases:
+            test_variables = ""
+            for i in range(len(test)):
+                if i == len(test) - 1:
+                    test_variables += str(test[i]) 
+                else:
+                    test_variables += str(test[i]) + separator
+            run_str = f"print(problem({test_variables}))"
+            test_case_array.append(run_str)
 
-        for i in range(len(input_parameters)):
-            if i == len(input_parameters) - 1:
-                test_variables += str(input_parameters[i]) 
-            else:
-                test_variables += str(input_parameters[i]) + separator
 
         function_str = f"def problem({input_var}):"
-        run_str = f"print(problem({test_variables}))"
 
         self.problem_object["statement"] = problem_statement
+        self.problem_object["testCases"] = test_case_array
         self.problem_object["code"] = function_str 
         self.problem_object["testCase"] = function_str + solution_code
         self.problem_object["testCaseStr"] = run_str
