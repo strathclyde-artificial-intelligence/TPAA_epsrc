@@ -7,7 +7,9 @@ class Model {
 		this.problemObject;
 		this.tokenObject;
 		this.codeOutput;
-		this.solutionOutput
+		this.solutionOutput;
+		this.batchedSolutions = {};
+		this.tries = {};
 	}
 
 	fetchProblemObject(editor, problemNumber, setCode, setProblemStatement) {
@@ -26,6 +28,13 @@ class Model {
 			view.setCode(editor, jsonObj.code);
 			view.setProblemStatement(jsonObj.statement);
 			view.displayProblemText();
+			that.sendSolutionRequest(jsonObj.testCase, jsonObj.testCaseStr)
+			let testCases = jsonObj.testCases;
+			let typeOfRequest = "solution";
+			
+			for(let i = 0; i < testCases.length; i++) {
+				that.sendBatchRequest(jsonObj.testCase, testCases[i], i, typeOfRequest);
+			}
 			view.changeActiveButton("Problem");
 		});
 
@@ -34,17 +43,7 @@ class Model {
 		xhr.send();
 	}
 
-	setLocalStorage(nameOfCurrentProblem) {
-		localStorage.setItem("currentProblem", nameOfCurrentProblem);
-	}
-
-	setLocalStorage(nameOfCurrentProblem) {
-		localStorage.setItem("currentProblem", nameOfCurrentProblem);
-
-	}
-
 	sendSolutionRequest(solutionCode, runStr) {
-
 		
 		let test = solutionCode + '\n' + runStr;
 		let newData = btoa(test);
@@ -62,10 +61,6 @@ class Model {
 		xhr.open("GET", URL, true);
 		xhr.send();
 
-	}
-
-	setTokenObject(tokenReceived) {
-		this.tokenObject = tokenReceived;
 	}
 
 	fetchSolutionResult(token) {
@@ -86,8 +81,9 @@ class Model {
 		xhr.send();
 	}
 
-	sendCodeRequest(codeRan, setCodeOutputBox, removeLoadingAnimation, testString) {
+	sendCodeRequest(codeRan, setCodeOutputBox, activateSubmitButton, activateRunButton, removeLoadingAnimation, testString) {
 		
+		this.batchedTries = {};
 		let combinedCode = codeRan + '\n' + testString;
 		let newData = btoa(combinedCode);
 
@@ -97,7 +93,7 @@ class Model {
 		xhr.addEventListener("load", function() {
 			let text = this.responseText;
 			let jsonObj = JSON.parse(text);
-			that.fetchCodeResult(jsonObj.token, setCodeOutputBox, removeLoadingAnimation);
+			that.fetchCodeResult(codeRan, jsonObj.token, setCodeOutputBox, activateSubmitButton, activateRunButton, removeLoadingAnimation);
 		});
 
 		let URL = "send.php/?code="+newData;
@@ -106,11 +102,7 @@ class Model {
 
 	}
 
-	setTokenObject(tokenReceived) {
-		this.tokenObject = tokenReceived;
-	}
-
-	fetchCodeResult(token, setCodeOutputBox, removeLoadingAnimation) {
+	fetchCodeResult(codeRan, token, setCodeOutputBox, activateSubmitButton, activateRunButton, removeLoadingAnimation) {
 		
 		const that = this;
 		let xhr = new XMLHttpRequest();
@@ -121,12 +113,24 @@ class Model {
 				let data = JSON.parse(collectedData);
 				if(data.stdout === null) {
 					view.removeLoadingAnimation();
-					view.setCodeOutputBox("error");
+					view.setCodeOutputBox("Error");
 				} else {
 					that.setProblemOutput(atob(data.stdout));
 					view.removeLoadingAnimation();
-					view.setCodeOutputBox(atob(data.stdout));
+					view.activateRunButton();
+					view.activateSubmitButton();
+					let output = that.getSolutionOutput();
+					let outputStr = `Output = ${atob(data.stdout)}\nExpected = ${output}`
+					view.setCodeOutputBox(outputStr);
+					let solutionObject = that.getProblemObject();
+					let testCases = solutionObject.testCases;
+					let typeOfRequest = "tries";
+					for(let i = 0; i < testCases.length; i++) {
+						that.sendBatchRequest(codeRan, testCases[i], i, typeOfRequest);
+					}
 				}
+				view.activateRunButton();
+				view.activateSubmitButton();
 			}
 		});
 
@@ -135,9 +139,63 @@ class Model {
 		xhr.send();
 	}
 
-	setSolutionOutput(solutionOutput) {
-		this.solutionOutput = solutionOutput
+	
+	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
+		
+		let newData = startingCode + '\n' + testCase;
+		let code = btoa(newData);
 
+		let xhr = new XMLHttpRequest();
+		const that = this;
+
+		xhr.addEventListener("load", function() {
+			let text = this.responseText;
+			let jsonObj = JSON.parse(text);
+			that.fetchBatchResult(jsonObj.token, index, typeOfRequest);
+		});
+
+		let URL = "send.php/?code="+code;
+		xhr.open("GET", URL, true);
+		xhr.send();
+
+	}
+
+	fetchBatchResult(token, index, typeOfRequest) {
+
+		const that = this;
+		let xhr = new XMLHttpRequest();
+
+		xhr.addEventListener("readystatechange", function() {
+			if(this.readyState == this.DONE) {
+				let collectedData = this.responseText;
+				let data = JSON.parse(collectedData);
+				if(typeOfRequest == "solution") {
+					that.setBatchedSolutions(atob(data.stdout), index);
+				} else if (typeOfRequest == "tries") {
+					that.setBatchedTries(atob(data.stdout), index);
+				}
+			}
+		});
+
+		let URL = "getCode.php/?token="+token;
+		xhr.open("GET", URL, true);
+		xhr.send();
+	}
+	
+	setTokenObject(tokenReceived) {
+		this.tokenObject = tokenReceived;
+	}
+
+	setSolutionOutput(testCase) {
+		this.solutionOutput = testCase;
+	}
+
+	setBatchedTries(testCase, index) {
+		this.batchedTries[index] = testCase;
+	}
+
+	setBatchedSolutions(testCase, index) {
+		this.batchedSolutions[index] = testCase;
 	}
 
 	setProblemObject(jsonObj) {
@@ -148,9 +206,18 @@ class Model {
 		this.codeOutput = output;
 	}
 
+	getBatchedTries() {
+		return this.batchedTries;
+	}
+
+	getBatchedSolutions() {
+		return this.batchedSolutions;
+	}
+
 	getSolutionOutput() {
 		return this.solutionOutput;
 	}
+
 	getProblemOutput() {
 		return this.codeOutput;
 	}

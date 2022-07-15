@@ -19,38 +19,52 @@ const initalise = evt => {
 		}
 	  );
 
-
 	//fetch problem from php
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
 			
+		view.deactivateRunButton();
+		view.deactivateSubmitButton();
 		//we clear the output for loading animation
 		view.setCodeOutputBox("");
 		view.showLoadingAnimation();
 		let code = view.getCode(editor);
 		let solutionObject = model.getProblemObject();
-		model.sendSolutionRequest(solutionObject.testCase, solutionObject.testCaseStr);
-		model.sendCodeRequest(code, view.setOutputBox, view.removeLoadingAnimation, solutionObject.testCaseStr);
-		
+
+		model.sendCodeRequest(code, view.setOutputBox, view.activateSubmitButton, view.activateRunButton, view.removeLoadingAnimation, solutionObject.testCaseStr);
 
 	});
 
 	view.setUpSubmitHandler(() => {
+		view.deactivateRunButton();
+		view.deactivateSubmitButton();
+		let solutionCases = model.getBatchedSolutions();
+		let actualCases = model.getBatchedTries();
 		let outputCode = model.getProblemOutput();
-		let solutionCode = model.getSolutionOutput();
+		let len = Object.keys(solutionCases).length;
+		let outputStr = "";
+		let areEqual = true;
+
+		for(let i = 0; i < len; i++) {
+			if(actualCases[i] != solutionCases[i]) {
+				areEqual = false;
+			}
+			outputStr += `${i+1}:Output = ${actualCases[i]}${i+1}:Expected = ${solutionCases[i]}\n`;
+		}
 
 		if(outputCode == undefined) {
 			view.setOutputText("Before you submit your code make sure to run it.");
 		} else {
-
-			if (outputCode == solutionCode) {
-				view.setOutputText("Correct");
+			if (areEqual) {
+				view.setOutputText("Correct\n" + outputStr);
 				view.showNextButton();
 			} else {
-				view.setOutputText("Incorrect answer.");
+				view.setOutputText(outputStr);
 			}
 		}
+		view.activateSubmitButton();
+		view.activateRunButton();
 
 	});
 

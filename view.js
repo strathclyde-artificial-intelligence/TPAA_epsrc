@@ -53,6 +53,30 @@ class View {
 		return code;
 	}
 
+	activateSubmitButton() {
+		let submitButton = document.getElementById("submitButton");
+		submitButton.style.background = "#62c962";
+		submitButton.disable = false;
+	}
+
+	deactivateSubmitButton() {
+		let submitButton = document.getElementById("submitButton");
+		submitButton.style.background = "#BDBDBD";
+		submitButton.disable = true;
+	}
+
+	activateRunButton() {
+		let runButton = document.getElementById("runButton");
+		runButton.style.background = "#62c962";
+		runButton.disable = false;
+	}
+
+	deactivateRunButton() {
+		let runButton = document.getElementById("runButton");
+		runButton.style.background = "#BDBDBD";
+		runButton.disable = true;
+	}
+
 	setUpNextProblemHandler(listener) {
 		document.getElementById("nextButton").addEventListener("click", listener);
 	}
