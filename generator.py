@@ -189,7 +189,7 @@ class ProgrammingGenerator:
                     self.code[index] = new_code
 
         #get the statements that have 2 wholes to fill up and assign at least one random int to these, no matter if it is a critical node or not
-        check = self.add_function_input(complexity)
+        check = self.add_function_input(complexity, x_que)
         if check == False:
             return False
         self.fill_remaining()
@@ -258,7 +258,7 @@ class ProgrammingGenerator:
                 self.code[index] = new_code
 
     #this function adds input parameters into the statement
-    def add_function_input(self, complexity):
+    def add_function_input(self, complexity, x_que):
         x_var = "x"
         #we create the number of input nodes, we do this by creating complexity - 1 input nodes, 
         inputs_to_add = []
@@ -271,15 +271,16 @@ class ProgrammingGenerator:
         max_tries = 0
         count = 0
 
-        while count < len(inputs_to_add):
+        while count <= len(x_que) and len(x_que) != 0:
             #run time check
             if max_tries == 100:
                 return False
             random_node = random.choice(graph_list_keys)
             operand_to_replace = random.choice(self.operands)
-            if operand_to_replace in self.statements[random_node] and inputs_to_add[count] not in self.statements[random_node]:
-                new_statement = self.statements[random_node].replace(operand_to_replace, inputs_to_add[count])
-                new_code = self.code[random_node].replace(operand_to_replace, inputs_to_add[count])
+            if operand_to_replace in self.statements[random_node]:
+                inputs_to_add = x_que.pop(0)
+                new_statement = self.statements[random_node].replace(operand_to_replace, inputs_to_add)
+                new_code = self.code[random_node].replace(operand_to_replace, inputs_to_add)
                 self.statements[random_node] = new_statement
                 self.code[random_node] = new_code
                 count+=1
