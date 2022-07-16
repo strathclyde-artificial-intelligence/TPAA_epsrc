@@ -23,9 +23,9 @@ const initalise = evt => {
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 	
 	view.setUpProblemEvaluationHandler(() => {
-			
+
+		view.removeSubmitButton();
 		view.deactivateRunButton();
-		view.deactivateSubmitButton();
 		//we clear the output for loading animation
 		view.setCodeOutputBox("");
 		view.showLoadingAnimation();
@@ -37,11 +37,11 @@ const initalise = evt => {
 	});
 
 	view.setUpSubmitHandler(() => {
-		view.deactivateRunButton();
-		view.deactivateSubmitButton();
+
 		let solutionCases = model.getBatchedSolutions();
 		let actualCases = model.getBatchedTries();
 		let outputCode = model.getProblemOutput();
+
 		let len = Object.keys(solutionCases).length;
 		let outputStr = "";
 		let areEqual = true;
@@ -65,7 +65,6 @@ const initalise = evt => {
 		}
 		view.activateSubmitButton();
 		view.activateRunButton();
-
 	});
 
 	view.setUpNextProblemHandler(() => {

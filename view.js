@@ -53,16 +53,14 @@ class View {
 		return code;
 	}
 
-	activateSubmitButton() {
+	removeSubmitButton() {
 		let submitButton = document.getElementById("submitButton");
-		submitButton.style.background = "#62c962";
-		submitButton.disable = false;
+		submitButton.style.display = 'none';
 	}
 
-	deactivateSubmitButton() {
+	activateSubmitButton() {
 		let submitButton = document.getElementById("submitButton");
-		submitButton.style.background = "#BDBDBD";
-		submitButton.disable = true;
+		submitButton.style.display = 'inline';
 	}
 
 	activateRunButton() {

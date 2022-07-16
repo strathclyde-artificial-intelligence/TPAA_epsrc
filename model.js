@@ -117,8 +117,6 @@ class Model {
 				} else {
 					that.setProblemOutput(atob(data.stdout));
 					view.removeLoadingAnimation();
-					view.activateRunButton();
-					view.activateSubmitButton();
 					let output = that.getSolutionOutput();
 					let outputStr = `Output = ${atob(data.stdout)}\nExpected = ${output}`
 					view.setCodeOutputBox(outputStr);
@@ -128,9 +126,11 @@ class Model {
 					for(let i = 0; i < testCases.length; i++) {
 						that.sendBatchRequest(codeRan, testCases[i], i, typeOfRequest);
 					}
+					if(output == atob(data.stdout)) {
+						view.activateSubmitButton();
+					}
 				}
-				view.activateRunButton();
-				view.activateSubmitButton();
+					view.activateRunButton();
 			}
 		});
 
@@ -139,7 +139,6 @@ class Model {
 		xhr.send();
 	}
 
-	
 	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
 		
 		let newData = startingCode + '\n' + testCase;

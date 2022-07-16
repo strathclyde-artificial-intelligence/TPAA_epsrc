@@ -497,6 +497,5 @@ class ProgrammingGenerator:
         return problem_statement, solution_code
         
 
-
 generator = ProgrammingGenerator()
 print(generator.start(3))
