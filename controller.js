@@ -21,6 +21,7 @@ const initalise = evt => {
 
 	//fetch problem from php
 	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
+
 	
 	view.setUpProblemEvaluationHandler(() => {
 
@@ -38,6 +39,7 @@ const initalise = evt => {
 
 	view.setUpSubmitHandler(() => {
 
+		view.showLoadingAnimation();
 		let solutionCases = model.getBatchedSolutions();
 		let actualCases = model.getBatchedTries();
 		let outputCode = model.getProblemOutput();
@@ -65,6 +67,7 @@ const initalise = evt => {
 		}
 		view.activateSubmitButton();
 		view.activateRunButton();
+		view.removeLoadingAnimation();
 	});
 
 	view.setUpNextProblemHandler(() => {

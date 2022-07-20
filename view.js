@@ -53,14 +53,18 @@ class View {
 		return code;
 	}
 
+
 	removeSubmitButton() {
 		let submitButton = document.getElementById("submitButton");
-		submitButton.style.display = 'none';
+		submitButton.setAttribute("hidden", "hidden");
 	}
 
 	activateSubmitButton() {
 		let submitButton = document.getElementById("submitButton");
-		submitButton.style.display = 'inline';
+		let hidden = submitButton.getAttribute("hidden");
+		if(hidden) {
+			submitButton.removeAttribute("hidden");
+		}
 	}
 
 	activateRunButton() {
@@ -129,6 +133,7 @@ class View {
 
 		for(let i = 0; i < element.length; i++) {
 			if(element[i].value == change) {
+				element[i].className = element[i].className.replace(" active", "");
 				element[i].className +=" active";
 			} else {
 				element[i].className = element[i].className.replace(" active", "");

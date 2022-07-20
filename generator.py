@@ -2,11 +2,13 @@
 import random
 from math import inf
 import json 
+import time
 
 node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
         "operation2": "{O} = {1} * {2} [A]", 
         "operation3": "{O} = {1} - {2} [A]", 
+        "operation4": "z = {1} + {2}\n{O} = z // 2 [A]", 
         }
 
 node_cond = {
@@ -20,10 +22,12 @@ node_cond = {
 node_ret = "return {1}"
 
 
+
 operations = {
         "operation1": "Get the total of {1} + {2}, store the result in {O}.:[A]", 
         "operation2": "Get the product of {1} * {2}, store the result in {O}.:[A]", 
         "operation3": "Get the total of {1} - {2}, store the result in {O}.:[A]", 
+        "operation4": "Get the average of {1} and {2}, store the result in {O}.:[A]", 
         }
 
 conditionals = {
@@ -38,13 +42,13 @@ operation_ret = {
         "operation_ret1": "return {1}", 
         }
 
-
 class ProgrammingGenerator:
     def __init__(self):
         self.graph = {}
         self.statements = {}
         self.code = {}
         self.problem_object = {}
+        self.starter_options = ["operation", "condition"]
         self.statement_options = ["operation", "condition"]
         self.actions = ["A", "B"]
         self.action_slots = ["[A]", "[B]"]
@@ -66,7 +70,7 @@ class ProgrammingGenerator:
 
         """
         balance_counter = 0
-        random_option = random.choice(self.statement_options)
+        random_option = random.choice(self.starter_options)
         if random_option == self.statement_options[1]:
             balance_counter+=1
         head_node, code_str, type_of_operation = self.generate(random_option)
@@ -86,6 +90,11 @@ class ProgrammingGenerator:
             if self.assign_node_parameters(complexity) == False:
                 return False
             else:
+                #additional check to ensure all input parameters are used, this is not a 'good' solution
+                for i in range(1, complexity):
+                    x_var = "x" + str(i)
+                    if x_var not in self.problem_object["statement"]:
+                        return False
                 return json.dumps(self.problem_object)
 
 
@@ -168,23 +177,28 @@ class ProgrammingGenerator:
                         list_of_statements.append(node)
 
                 count = self.assign_yvar_predecessor(y_var, count, list_of_statements, visited)
-            else:
-                #we check if it is a conditional statement, if it is we add a random number to one of the operands
-                if self.keywords[1] in self.statements[index]:
-                    rand_number = x_que.pop(0) 
-                    operand_to_replace = random.choice(self.operands)
-                    statement = self.statements[index]
-                    code_str = self.code[index]
+            #we check if it is a conditional statement, if it is we add a random number to one of the operands
+            elif self.keywords[1] in self.statements[index]:
+                operand_to_replace = random.choice(self.operands)
+                statement = self.statements[index]
+                code_str = self.code[index]
 
-                    if operand_to_replace in statement:
-                        new_statement = statement.replace(operand_to_replace, rand_number)
-                        new_code = code_str.replace(operand_to_replace, rand_number)
-                    elif operand_to_replace == self.operands[0]:
-                        new_statement = statement.replace(self.operands[1], rand_number)
-                        new_code = code_str.replace(self.operands[1], rand_number)
-                    elif operand_to_replace == self.operands[1]:
-                        new_statement = statement.replace(self.operands[0], rand_number)
-                        new_code = code_str.replace(self.operands[0], rand_number)
+                if operand_to_replace in statement:
+                    rand_number = x_que.pop(0) 
+                    new_statement = statement.replace(operand_to_replace, rand_number)
+                    new_code = code_str.replace(operand_to_replace, rand_number)
+                    self.statements[index] = new_statement
+                    self.code[index] = new_code
+                elif operand_to_replace == self.operands[0] and self.operands[1] in statement:
+                    rand_number = x_que.pop(0) 
+                    new_statement = statement.replace(self.operands[1], rand_number)
+                    new_code = code_str.replace(self.operands[1], rand_number)
+                    self.statements[index] = new_statement
+                    self.code[index] = new_code
+                elif operand_to_replace == self.operands[1] and self.operands[0]:
+                    rand_number = x_que.pop(0) 
+                    new_statement = statement.replace(self.operands[0], rand_number)
+                    new_code = code_str.replace(self.operands[0], rand_number)
                     self.statements[index] = new_statement
                     self.code[index] = new_code
 
@@ -293,13 +307,13 @@ class ProgrammingGenerator:
         #for all the statements in the graph, we add random numbers to all available slots
         for index in graph_list_keys:
             if self.operands[0] in self.statements[index]:
-                rand_number = str(random.randint(0, 100))
+                rand_number = str(random.randint(1, 100))
                 new_statement = self.statements[index].replace(self.operands[0], rand_number)
                 new_code = self.code[index].replace(self.operands[0], rand_number)
                 self.statements[index] = new_statement
                 self.code[index] = new_code
             if self.operands[1] in self.statements[index]:
-                rand_number = str(random.randint(0, 100))
+                rand_number = str(random.randint(1, 100))
                 new_statement = self.statements[index].replace(self.operands[1], rand_number)
                 new_code = self.code[index].replace(self.operands[1], rand_number)
                 self.statements[index] = new_statement
@@ -319,9 +333,9 @@ class ProgrammingGenerator:
         key+=1
         self.statements[key] = new_statement
         self.code[key] = code_str
-        if type_of_operation == "operation":
+        if type_of_operation == self.statement_options[0]:
             self.graph[key] = ["A"]
-        else:
+        elif type_of_operation == self.statement_options[1]:
             self.graph[key] = ["A", "B"]
         return key
 
@@ -343,6 +357,8 @@ class ProgrammingGenerator:
                 #we can only assign the new node to a node that has come before it, therefore, we can only assign when condition random_key < key is true
                 for i in range(max_tries):
                     random_key = random.choice(list(self.graph.keys()))
+                    new_list = self.graph[random_key]
+                    slot = random.choice(new_list)
                     if random_key < key and slot in self.actions:
                         new_list[new_list.index(slot)] = key
                         self.graph[random_key] = new_list 

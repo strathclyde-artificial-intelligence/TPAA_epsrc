@@ -16,10 +16,6 @@ class Model {
 		//fetching function for visiting currency
 		let xhr = new XMLHttpRequest();
 		const that = this;
-		if(problemNumber == null) {
-			//if the number has not been set or cleared we fetch the first problem
-			problemNumber = "One";
-		}
 
 		xhr.addEventListener("load", function() {
 			let text = this.responseText;
@@ -138,6 +134,7 @@ class Model {
 		xhr.open("GET", URL, true);
 		xhr.send();
 	}
+
 
 	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
 		
