@@ -2,45 +2,14 @@
 import random
 from math import inf
 import json 
+import sys
 import time
+import iteration_generator
+import cond_generator
+import operation_generator
 
-node_op = {
-        "operation1": "{O} = {1} + {2} [A]", 
-        "operation2": "{O} = {1} * {2} [A]", 
-        "operation3": "{O} = {1} - {2} [A]", 
-        "operation4": "z = {1} + {2}\n{O} = z // 2 [A]", 
-        }
-
-node_cond = {
-        "condition1": "if {1} == {2}: [A]else: [B]", 
-        "condition2": "if {1} >= {2}: [A]else: [B]", 
-        "condition3": "if {1} <= {2}: [A]else: [B]", 
-        "condition4": "if {1} < {2}: [A]else: [B]", 
-        "condition5": "if {1} > {2}: [A]else: [B]", 
-        }
 
 node_ret = "return {1}"
-
-
-
-operations = {
-        "operation1": "Get the total of {1} + {2}, store the result in {O}.:[A]", 
-        "operation2": "Get the product of {1} * {2}, store the result in {O}.:[A]", 
-        "operation3": "Get the total of {1} - {2}, store the result in {O}.:[A]", 
-        "operation4": "Get the average of {1} and {2}, store the result in {O}.:[A]", 
-        }
-
-conditionals = {
-        "condition1": "If {1} and {2} are equal:[A]:otherwise,:[B]", 
-        "condition2": "If {1} is greater than or equal to {2}:[A]:otherwise,:[B]", 
-        "condition3": "If {1} is less than or equal to {2}:[A]:otherwise,:[B]", 
-        "condition4": "If {1} is less than {2}:[A]:otherwise,:[B]", 
-        "condition5": "If {1} is greater than {2}:[A]:otherwise,:[B]", 
-        }
-
-operation_ret = {
-        "operation_ret1": "return {1}", 
-        }
 
 class ProgrammingGenerator:
     def __init__(self):
@@ -49,13 +18,18 @@ class ProgrammingGenerator:
         self.code = {}
         self.problem_object = {}
         self.starter_options = ["operation", "condition"]
-        self.statement_options = ["operation", "condition"]
+        self.statement_options = ["operation", "condition", "iterator"]
         self.actions = ["A", "B"]
         self.action_slots = ["[A]", "[B]"]
         self.operands = ["{1}", "{2}"]
         self.output = "{O}"
         self.keywords = ["return {1}", "If", "Get", "otherwise"]
-        self.code_keywords = ["if", "else", "return"]
+        self.code_keywords = ["if", "else", "return", "for", "%end"]
+        self.input_lists = []
+        self.list_variables = []
+        self.generated_nodes = 0
+        self.created_nodes = 0
+
 
     def start(self, complexity):
         """
@@ -67,7 +41,6 @@ class ProgrammingGenerator:
         Returns:
         (bool): False if failed
         problem_object (str): a dict with the problem statement, code, solution in json format
-
         """
         balance_counter = 0
         random_option = random.choice(self.starter_options)
@@ -75,12 +48,12 @@ class ProgrammingGenerator:
             balance_counter+=1
         head_node, code_str, type_of_operation = self.generate(random_option)
         key = 1
-        self.statements = {key: head_node}
-        self.code = {key: code_str}
+        self.statements[key] = head_node
+        self.code[key] = code_str
 
         if type_of_operation == self.statement_options[0]:
-            self.graph = {key: [self.actions[0]]}
-        else:
+            self.graph = {key : [self.actions[0]]}
+        elif type_of_operation == self.statement_options[1]:
             self.graph = {key: [self.actions[0], self.actions[1]]}
 
         
@@ -110,7 +83,7 @@ class ProgrammingGenerator:
         Returns:
         (bool): False if generation fails
         """
-        for i in range(complexity):
+        for i in range(1, complexity):
             #generate random condition or operation node
             random_option = random.choice(self.statement_options)
             if random_option == self.statement_options[1]:
@@ -121,8 +94,8 @@ class ProgrammingGenerator:
         #if we have generated to many of conditional statements we treat the generation as a failure
         if balance_counter >= complexity:
             return False
-
         else:
+            self.created_nodes+=1
             #Finally, we attach return nodes to all the remaining slots. return nodes are terminal and there fore lead to none
             for index in range(1, len(self.graph) + 1):
                 if self.actions[0] in self.graph[index]:
@@ -224,7 +197,6 @@ class ProgrammingGenerator:
         Returns:
         count (int): an int i which is combined with y_var
         """
-        
         #if there follows more then 0 If nodes from index, then we pick a random one and assign y_num to one of its operands
         if len(list_of_statements) > 0:
             node = random.choice(list_of_statements)
@@ -337,6 +309,9 @@ class ProgrammingGenerator:
             self.graph[key] = ["A"]
         elif type_of_operation == self.statement_options[1]:
             self.graph[key] = ["A", "B"]
+        elif type_of_operation == self.statement_options[2]:
+            self.graph[key] = ["A"]
+        self.created_nodes+=1
         return key
 
 
@@ -345,43 +320,39 @@ class ProgrammingGenerator:
         new_list = self.graph[random_key]
         slot = random.choice(new_list)
 
-        if slot in self.actions:
-            #create new statement
-            key = self.create_node(new_statement, code_str, type_of_operation, key)
-            #replace the current index with the key of the next node
-            if random_key < key:
+        key = self.create_node(new_statement, code_str, type_of_operation, key)
+        if slot in self.actions and random_key < key:
                 new_list[new_list.index(slot)] = key
                 self.graph[random_key] = new_list 
-            else:
-                max_tries = 10
-                #we can only assign the new node to a node that has come before it, therefore, we can only assign when condition random_key < key is true
-                for i in range(max_tries):
-                    random_key = random.choice(list(self.graph.keys()))
-                    new_list = self.graph[random_key]
-                    slot = random.choice(new_list)
-                    if random_key < key and slot in self.actions:
-                        new_list[new_list.index(slot)] = key
-                        self.graph[random_key] = new_list 
-                        return key
-
-                return False
-        return key
+                return key
+        else:
+            all_keys = list(self.graph.keys())
+            for current_key in all_keys:
+                if current_key < key and self.actions[0] in self.graph[current_key]:
+                    self.graph[current_key][0] = key
+                    return key
+                elif current_key < key and self.actions[1] in self.graph[current_key]:
+                    self.graph[current_key][1] = key
+                    return key
+        return False
 
 
     def generate(self, type_of_operation):
-        if type_of_operation == "operation":
-            entry_list = list(operations.items())
-            random_entry = random.choice(entry_list)
-            statement_str = random_entry[1]
-            code_str = node_op[random_entry[0]]
+        self.generated_nodes+=1
+        if type_of_operation == self.statement_options[0]:
+            statement_str, code_str = operation_generator.generate()
+            return statement_str, code_str, type_of_operation
+        elif type_of_operation == self.statement_options[1]:
+            statement_str, code_str = cond_generator.generate()
+            return statement_str, code_str, type_of_operation
+        elif type_of_operation == self.statement_options[2]:
+            statement_str, code_str = iteration_generator.generate()
+            list_var = "list" + str(len(self.list_variables) + 1)
+            statement_str = statement_str.replace("{list}", list_var)
+            code_str = code_str.replace("{list}", list_var)
+            self.list_variables.append(list_var)
             return statement_str, code_str, type_of_operation
 
-        elif type_of_operation == "condition":
-            entry_list = list(conditionals.items())
-            random_entry = random.choice(entry_list)
-            statement_str = random_entry[1]
-            code_str = node_cond[random_entry[0]]
-            return statement_str, code_str, type_of_operation
     
 
     def build_statements(self):
@@ -415,18 +386,36 @@ class ProgrammingGenerator:
                     self.statements[node] = self.statements[node].replace(current, self.statements[i])
                     self.code[node] = self.code[node].replace(current, '\n' + self.code[i] + '\n')
 
+    
     def build_problem(self, complexity, problem_statement, solution_code):
         x_var = "x"
-
+        separator = ", "
         number_of_tests = 4 
         test_cases = []
-        separator = ", "
+        test_lists = []
+        list_size = random.randint(4, 6)
 
+        #replaces any list if they are not in incremented order
+        #problem_statement, solution_code = self.replace_faulty_occurences(problem_statement, solution_code)
+
+        occurences_of_lists = solution_code.count(self.code_keywords[3])
         for i in range(number_of_tests):
             input_parameters = []
+            input_lists = []
             for j in range(complexity - 1):
                 rand_num = random.randint(1,100)
                 input_parameters.append(rand_num)
+            for j in range(occurences_of_lists):
+                input_lists = "["
+                for k in range(list_size):
+                    rand_int = random.randint(1,100)
+                    if k == list_size - 1:
+                        input_lists += str(rand_int)
+                    else:
+                        input_lists += str(rand_int) + separator
+                input_lists += "]"
+                test_lists.append(input_lists)
+
             test_cases.append(input_parameters)
         
         input_var = ""
@@ -436,19 +425,31 @@ class ProgrammingGenerator:
             else:
                 input_var += x_var+str(i)+separator
 
+        for i in range(occurences_of_lists):
+            if i == occurences_of_lists - 1:
+                input_var += separator + self.list_variables[i]
+            else:
+                input_var += separator + self.list_variables[i] 
+
         test_case_array = []
 
-        for test in test_cases:
+        for i in range (len(test_cases)):
             test_variables = ""
-            for i in range(len(test)):
-                if i == len(test) - 1:
-                    test_variables += str(test[i]) 
+            for j in range(len(test_cases[i])):
+                if j == len(test_cases[i]) - 1:
+                    test_variables += str(test_cases[i][j])
                 else:
-                    test_variables += str(test[i]) + separator
+                    test_variables += str(test_cases[i][j]) + separator
+            for j in range(occurences_of_lists):
+                if j == occurences_of_lists - 1:
+                    test_variables += separator + str(test_lists[i])
+                else:
+                    test_variables += separator + str(test_lists[i]) 
+        
             run_str = f"print(problem({test_variables}))"
             test_case_array.append(run_str)
 
-
+        
         function_str = f"def problem({input_var}):"
 
         self.problem_object["statement"] = problem_statement
@@ -491,8 +492,19 @@ class ProgrammingGenerator:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
+            elif self.code_keywords[3] in node:
+                solution_code += '\n' + len(stack)*tab + node
+                stack.append(2)
+            elif self.code_keywords[4] in node:
+                solution_code += '\n' + len(stack)*tab + node
+                if len(stack) > 0:
+                    popped = -inf
+                    while popped != 2 and len(stack) > 1:
+                        popped = stack.pop()
             else:
                 solution_code += '\n' + len(stack)*tab + node
+
+        solution_code = solution_code.replace(self.code_keywords[4], "")
 
         for node in output_statements:
             if self.keywords[1] in node:
@@ -512,6 +524,5 @@ class ProgrammingGenerator:
                 problem_statement += '\n' + len(stack)* spaces + node
         return problem_statement, solution_code
         
-
 generator = ProgrammingGenerator()
 print(generator.start(3))
