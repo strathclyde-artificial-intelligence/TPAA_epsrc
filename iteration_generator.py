@@ -1,13 +1,14 @@
 import random
+# coding: utf8
 
 tabs = '    '
 
 node_iteration = {
-        "iterator1": "avg = 0\nfor num in {list}:\navg += num%end\n{O} = avg // len({list})[A]", 
+        "iterator1": "avg = 0\nfor num in {list}:\navg += num %end\n{O} = avg // len({list})[A]", 
         "iterator2": "{O} = 0\nfor num in {list}:\nif num % 2 == 1:\n{O} += num %end[A]", 
         "iterator3": "{O} = 0\nfor num in {list}:\nif num % 2 == 0:\n{O} += num %end[A]", 
-        "iterator4": "{O} = -999999\nfor num in {list}:\nif num > {O} == 0:\n{O} = num %end[A]", 
-        "iterator5": "{O} = 999999\nfor num in {list}:\nif num < {O} == 0:\n{O} = num %end[A]", 
+        "iterator4": "{O} = -999999\nfor num in {list}:\nif num > {O}:\n{O} = num %end[A]", 
+        "iterator5": "{O} = 999999\nfor num in {list}:\nif num < {O}:\n{O} = num %end[A]", 
         }
 
 iteration = {

@@ -62,13 +62,7 @@ class ProgrammingGenerator:
         else:
             if self.assign_node_parameters(complexity) == False:
                 return False
-            else:
-                #additional check to ensure all input parameters are used, this is not a 'good' solution
-                for i in range(1, complexity):
-                    x_var = "x" + str(i)
-                    if x_var not in self.problem_object["statement"]:
-                        return False
-                return json.dumps(self.problem_object)
+            return json.dumps(self.problem_object)
 
 
     def create_base_nodes(self, key, complexity, balance_counter):
@@ -126,6 +120,7 @@ class ProgrammingGenerator:
         x_var = "x"
         count = 1
         x_que = []
+        x_que
         for i in range(1, complexity):
             x_que.append(x_var + str(i))
 
@@ -155,7 +150,6 @@ class ProgrammingGenerator:
                 operand_to_replace = random.choice(self.operands)
                 statement = self.statements[index]
                 code_str = self.code[index]
-
                 if operand_to_replace in statement:
                     rand_number = x_que.pop(0) 
                     new_statement = statement.replace(operand_to_replace, rand_number)
@@ -168,7 +162,7 @@ class ProgrammingGenerator:
                     new_code = code_str.replace(self.operands[1], rand_number)
                     self.statements[index] = new_statement
                     self.code[index] = new_code
-                elif operand_to_replace == self.operands[1] and self.operands[0]:
+                elif operand_to_replace == self.operands[1] and self.operands[0] in statement:
                     rand_number = x_que.pop(0) 
                     new_statement = statement.replace(self.operands[0], rand_number)
                     new_code = code_str.replace(self.operands[0], rand_number)
@@ -272,7 +266,6 @@ class ProgrammingGenerator:
                 count+=1
             max_tries+=1
             
-
     def fill_remaining(self):
         graph_list_keys = list(self.graph.keys())
 
@@ -395,10 +388,8 @@ class ProgrammingGenerator:
         test_lists = []
         list_size = random.randint(4, 6)
 
-        #replaces any list if they are not in incremented order
-        #problem_statement, solution_code = self.replace_faulty_occurences(problem_statement, solution_code)
-
         occurences_of_lists = solution_code.count(self.code_keywords[3])
+
         for i in range(number_of_tests):
             input_parameters = []
             input_lists = []
