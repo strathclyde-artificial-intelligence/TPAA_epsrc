@@ -1,3 +1,102 @@
+/* CSS */
+.runButton {
+  align-items: center;
+  appearance: none;
+  background-color: #fcfcfd;
+  border-radius: 4px;
+  border-width: 0;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #36395a;
+  cursor: pointer;
+  display: flex;
+  font-family: "JetBrains Mono", monospace;
+  height: 48px;
+  width: 8vw;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  margin-right: 1vw;
+  margin-bottom: 2vh;
+  padding-left: 16px;
+  padding-right: 16px;
+  text-align: left;
+  text-decoration: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow, transform;
+  font-size: 18px;
+}
+
+.runButton:focus {
+  box-shadow: #d6d6e7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3p 0 inset;
+}
+
+.runButton:hover {
+  box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+  transform: translateY(-2px);
+}
+
+.runButton:active {
+  box-shadow: #d6d6e7 0 3px 7px inset;
+  transform: translateY(2px);
+}
+
+.submitButton {
+  align-items: center;
+  appearance: none;
+  background-color: #fcfcfd;
+  border-radius: 4px;
+  border-width: 0;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #36395a;
+  cursor: pointer;
+  font-family: "JetBrains Mono", monospace;
+  height: 48px;
+  width: 8vw;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow, transform;
+  font-size: 18px;
+}
+
+.submitButton:focus {
+  box-shadow: #d6d6e7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3p 0 inset;
+}
+
+.submitButton:hover {
+  box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #d6d6e7 0 -3px 0 inset;
+  transform: translateY(-2px);
+}
+
+.submitButton:active {
+  box-shadow: #d6d6e7 0 3px 7px inset;
+  transform: translateY(2px);
+}
+
 .CodeMirror {
   border: 1px solid #eee;
   height: auto;
@@ -26,7 +125,7 @@
 }
 
 .buttonContainer {
-  margin-top: 5%;
+  margin-top: 2%;
   display: flex;
   flex-direction: row;
 }
@@ -42,84 +141,45 @@
   width: 10vw;
 }
 
-.runButton {
-  border: none;
-  border-radius: 45px;
-  background-color: #62c962;
-  height: 4vh;
-  width: 12vw;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
-  color: #fff;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease 0s;
-  cursor: pointer;
-  outline: none;
-  margin-bottom: 2%;
-}
-
-.runButton:hover {
-  background-color: #ffc300;
-  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
-  color: #000;
-  transform: translateY(-7px);
-}
-
-.submitButton {
-  border: none;
-  border-radius: 45px;
-  background-color: #62c962;
-  height: 4vh;
-  width: 12vw;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
-  color: #fff;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease 0s;
-  cursor: pointer;
-  outline: none;
-  margin-bottom: 2%;
-  margin-left: 2%;
-}
-
-.submitButton:hover {
-  background-color: #ffc300;
-  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
-  color: #000;
-  transform: translateY(-7px);
-}
-
 .nextButtonContainer {
   display: none;
   flex-direction: column;
 }
 
+/* CSS */
 .nextButton {
-  border: none;
-  border-radius: 45px;
-  background-color: #62c962;
-  height: 5vh;
-  width: 14vw;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
+  width: 8vw;
+  background-color: #13aa52;
+  border: 1px solid #13aa52;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px 0;
+  box-sizing: border-box;
   color: #fff;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease 0s;
   cursor: pointer;
+  font-family: "Akzidenz Grotesk BQ Medium", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   outline: none;
+  outline: 0;
+  padding: 10px 25px;
+  text-align: center;
+  transform: translateY(0);
+  transition: transform 150ms, box-shadow 150ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .nextButton:hover {
-  background-color: #ffc300;
-  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
-  color: #000;
-  transform: translateY(-7px);
+  box-shadow: rgba(0, 0, 0, 0.15) 0 3px 9px 0;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .button-37 {
+    padding: 10px 30px;
+  }
 }
 
 .solutionParagraph {
@@ -165,7 +225,8 @@
 .outputContainer {
   width: 50vw;
   height: 30vh;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
   display: flex;
 }
 .codeOutput {

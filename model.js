@@ -35,13 +35,13 @@ class Model {
 		});
 
 		let URL = "index.php";
-		xhr.open("GET", URL, true);
+		xhr.open("GET", URL, false);
 		xhr.send();
 	}
 
 	sendSolutionRequest(solutionCode, runStr) {
 		
-		let test = solutionCode + '\n' + runStr;
+		let test = "import math\n" + solutionCode + "\n" + runStr;
 		let newData = btoa(test);
 
 		let xhr = new XMLHttpRequest();
@@ -54,7 +54,7 @@ class Model {
 		});
 
 		let URL = "send.php/?code="+newData;
-		xhr.open("GET", URL, true);
+		xhr.open("GET", URL, false);
 		xhr.send();
 
 	}
@@ -80,7 +80,7 @@ class Model {
 	sendCodeRequest(codeRan, setCodeOutputBox, activateSubmitButton, activateRunButton, removeLoadingAnimation, testString) {
 		
 		this.batchedTries = {};
-		let combinedCode = codeRan + '\n' + testString;
+		let combinedCode = "import math\n" + codeRan + "\n" + testString;
 		let newData = btoa(combinedCode);
 
 		let xhr = new XMLHttpRequest();
@@ -138,7 +138,7 @@ class Model {
 
 	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
 		
-		let newData = startingCode + '\n' + testCase;
+		let newData = "import math\n" + startingCode + "\n" + testCase;
 		let code = btoa(newData);
 
 		let xhr = new XMLHttpRequest();
@@ -151,7 +151,7 @@ class Model {
 		});
 
 		let URL = "send.php/?code="+code;
-		xhr.open("GET", URL, true);
+		xhr.open("GET", URL, false);
 		xhr.send();
 
 	}
@@ -165,6 +165,8 @@ class Model {
 			if(this.readyState == this.DONE) {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
+				console.log(data);
+				console.log(atob(data.stderr));
 				if(typeOfRequest == "solution") {
 					that.setBatchedSolutions(atob(data.stdout), index);
 				} else if (typeOfRequest == "tries") {
@@ -174,7 +176,7 @@ class Model {
 		});
 
 		let URL = "getCode.php/?token="+token;
-		xhr.open("GET", URL, true);
+		xhr.open("GET", URL, false);
 		xhr.send();
 	}
 	

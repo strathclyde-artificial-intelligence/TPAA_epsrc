@@ -69,13 +69,11 @@ class View {
 
 	activateRunButton() {
 		let runButton = document.getElementById("runButton");
-		runButton.style.background = "#62c962";
 		runButton.disable = false;
 	}
 
 	deactivateRunButton() {
 		let runButton = document.getElementById("runButton");
-		runButton.style.background = "#BDBDBD";
 		runButton.disable = true;
 	}
 
