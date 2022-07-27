@@ -1,5 +1,4 @@
 let model, view;
-let currentProblem = localStorage.getItem("currentProblem");
 
 const initalise = evt => {
 	
@@ -20,7 +19,7 @@ const initalise = evt => {
 	  );
 
 	//fetch problem from php
-	model.fetchProblemObject(editor, currentProblem, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
+	model.fetchProblemObject(editor, view.setCode, view.setProblemStatement, view.displayProblemText, view.changeActiveButton);
 
 	
 	view.setUpProblemEvaluationHandler(() => {

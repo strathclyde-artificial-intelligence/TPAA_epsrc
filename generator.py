@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import random
+import math
 from math import inf
 import json
 import sys
@@ -398,7 +399,7 @@ class ProgrammingGenerator:
                     self.statements[node] = self.statements[node].replace(
                         current, self.statements[i])
                     self.code[node] = self.code[node].replace(
-                        current, '\n' + self.code[i] + '\n')
+                        current, "\n" + self.code[i] + "\n")
 
     def build_problem(self, complexity, problem_statement, solution_code):
         x_var = "x"
@@ -471,66 +472,67 @@ class ProgrammingGenerator:
 
     def indent_code(self):
         # how is this done in a good way?
-        new_list = self.code[1].split('\n')
-        output_statements = self.statements[1].split(':')
+        new_list = self.code[1].split("\n")
+        output_statements = self.statements[1].split(":")
 
         final_list = []
         # we have to remove empty spaces from list
         for node in new_list:
-            if '' != node:
+            if "" != node:
                 final_list.append(node)
 
         stack = []
         solution_code = ""
         problem_statement = ""
-        spaces = '  '
-        tab = '    '
+        spaces = "  "
+        tab = "    "
 
         stack.append(-1)
         # this does work for all cases, but its not a pretty solution, based on return always ending each code segment
         for node in final_list:
             if self.code_keywords[0] in node:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
                 stack.append(0)
             elif self.code_keywords[1] in node:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
                 stack.append(1)
             elif self.code_keywords[2] in node:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             elif self.code_keywords[3] in node:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
                 stack.append(2)
             elif self.code_keywords[4] in node:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 2 and len(stack) > 1:
                         popped = stack.pop()
             else:
-                solution_code += '\n' + len(stack)*tab + node
+                solution_code += "\n" + len(stack)*tab + node
 
         solution_code = solution_code.replace(self.code_keywords[4], "")
 
+
         for node in output_statements:
             if self.keywords[1] in node:
-                problem_statement += '\n' + len(stack)*spaces + node
+                problem_statement += "\n" + len(stack)*spaces + node
                 stack.append(0)
             elif self.keywords[3] in node:
-                problem_statement += '\n' + len(stack)*spaces + node
+                problem_statement += "\n" + len(stack)*spaces + node
                 stack.append(1)
-            # we can use code keywords, because return is the same in both
+            #we can use code keywords, because return is the same in both
             elif self.code_keywords[2] in node:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += "\n" + len(stack)*spaces + node
                 if len(stack) > 0:
                     popped = -inf
                     while popped != 0 and len(stack) > 1:
                         popped = stack.pop()
             else:
-                problem_statement += '\n' + len(stack) * spaces + node
+                problem_statement += "\n" + len(stack) * spaces + node
         return problem_statement, solution_code
 
 

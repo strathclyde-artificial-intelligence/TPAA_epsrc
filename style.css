@@ -13,7 +13,7 @@
   display: flex;
   font-family: "JetBrains Mono", monospace;
   height: 48px;
-  width: 8vw;
+  width: 10vw;
   justify-content: center;
   line-height: 1;
   list-style: none;
@@ -62,7 +62,7 @@
   cursor: pointer;
   font-family: "JetBrains Mono", monospace;
   height: 48px;
-  width: 8vw;
+  width: 10vw;
   justify-content: center;
   line-height: 1;
   list-style: none;
@@ -111,7 +111,7 @@
 }
 
 .problemParagraph {
-  margin-right: 4%;
+  margin-right: 2%;
 }
 
 .editorContainer {
@@ -148,7 +148,7 @@
 
 /* CSS */
 .nextButton {
-  width: 8vw;
+  width: 10vw;
   background-color: #13aa52;
   border: 1px solid #13aa52;
   border-radius: 4px;
