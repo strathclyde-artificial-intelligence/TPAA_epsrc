@@ -5,14 +5,11 @@
     <title>Home</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="./codemirror/lib/codemirror.css" />
+    <link rel="stylesheet" href="./codemirror/theme/neat.css" />
   </head>
   <body>
     <div class="container">
-      <div class="selectContainer">
-        <div class="hintContainer">
-          <p class="hintText" id="hintText">Alpha build</p>
-        </div>
-      </div>
+      <div class="selectContainer"></div>
       <div class="editorContainer">
         <textarea
           class="codeEditor"
@@ -63,6 +60,7 @@
     </div>
     <script type="module" src="./codemirror/lib/codemirror.js"></script>
     <script type="module" src="./codemirror/mode/xml/xml.js"></script>
+    <script type="module" src="./codemirror/mode/python/python.js"></script>
     <script src="model.js"></script>
     <script src="view.js"></script>
     <script src="controller.js"></script>

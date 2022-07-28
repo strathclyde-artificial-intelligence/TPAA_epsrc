@@ -41,8 +41,8 @@ class Model {
 
 	sendSolutionRequest(solutionCode, runStr) {
 		
-		let test = "import math\n" + solutionCode + "\n" + runStr;
-		let newData = btoa(test);
+		let code = "import math\n" + solutionCode + "\n" + runStr;
+		let newData = btoa(code);
 
 		let xhr = new XMLHttpRequest();
 		const that = this;
@@ -109,7 +109,7 @@ class Model {
 				let data = JSON.parse(collectedData);
 				if(data.stdout === null) {
 					view.removeLoadingAnimation();
-					view.setCodeOutputBox("Error");
+					view.setCodeOutputBox(atob(data.stderr));
 				} else {
 					that.setProblemOutput(atob(data.stdout));
 					view.removeLoadingAnimation();
@@ -165,8 +165,6 @@ class Model {
 			if(this.readyState == this.DONE) {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
-				console.log(data);
-				console.log(atob(data.stderr));
 				if(typeOfRequest == "solution") {
 					that.setBatchedSolutions(atob(data.stdout), index);
 				} else if (typeOfRequest == "tries") {

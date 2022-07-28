@@ -1,9 +1,11 @@
 let model, view;
 
 const initalise = evt => {
+
 	
 	model = new Model();
 	view = new View();
+
 	//definition of editor, codemirror library use
 	let editor = CodeMirror.fromTextArea(
 		document.getElementById("codeEditor"),
@@ -14,7 +16,8 @@ const initalise = evt => {
 			indentWithTabs: false, 
 			indentUnit: 4, 
 			extraKeys: {Tab: "indentMore"}, 
-			mode: null, 
+			mode: "text/x-python", 
+			theme: "neat",
 		}
 	  );
 
