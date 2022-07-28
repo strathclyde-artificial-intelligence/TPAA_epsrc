@@ -68,7 +68,7 @@ class Model {
 			if(this.readyState == this.DONE) {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
-				that.setSolutionOutput(atob(data.stdout));
+				that.setSolutionOutput(that.decode((data.stdout)));
 			}
 		});
 
@@ -81,7 +81,7 @@ class Model {
 		
 		this.batchedTries = {};
 		let combinedCode = "import math\n" + codeRan + "\n" + testString;
-		let newData = btoa(combinedCode);
+		let newData = this.encode(combinedCode)
 
 		let xhr = new XMLHttpRequest();
 		const that = this;
@@ -109,9 +109,9 @@ class Model {
 				let data = JSON.parse(collectedData);
 				if(data.stdout === null) {
 					view.removeLoadingAnimation();
-					view.setCodeOutputBox(atob(data.stderr));
+					view.setCodeOutputBox(that.decode(data.stderr));
 				} else {
-					that.setProblemOutput(atob(data.stdout));
+					that.setProblemOutput(that.decode((data.stdout)));
 					view.removeLoadingAnimation();
 					let output = that.getSolutionOutput();
 					let outputStr = `Output = ${atob(data.stdout)}\nExpected = ${output}`
@@ -139,7 +139,7 @@ class Model {
 	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
 		
 		let newData = "import math\n" + startingCode + "\n" + testCase;
-		let code = btoa(newData);
+		let code = this.encode(newData)
 
 		let xhr = new XMLHttpRequest();
 		const that = this;
@@ -166,9 +166,9 @@ class Model {
 				let collectedData = this.responseText;
 				let data = JSON.parse(collectedData);
 				if(typeOfRequest == "solution") {
-					that.setBatchedSolutions(atob(data.stdout), index);
+					that.setBatchedSolutions(that.decode(data.stdout), index);
 				} else if (typeOfRequest == "tries") {
-					that.setBatchedTries(atob(data.stdout), index);
+					that.setBatchedTries(that.decode(data.stdout), index);
 				}
 			}
 		});
@@ -176,6 +176,19 @@ class Model {
 		let URL = "getCode.php/?token="+token;
 		xhr.open("GET", URL, false);
 		xhr.send();
+	}
+
+	encode(str) {
+		return btoa(unescape(encodeURIComponent(str || "")));
+	}
+
+	decode(bytes) {
+		var escaped = escape(atob(bytes || ""));
+		try {
+			return decodeURIComponent(escaped);
+		} catch {
+			return unescape(escaped);
+		}
 	}
 	
 	setTokenObject(tokenReceived) {
