@@ -42,6 +42,7 @@ class Model {
 	sendSolutionRequest(solutionCode, runStr) {
 		
 		let code = "import math\n" + solutionCode + "\n" + runStr;
+		code = code.replace(">", "GREATERTHAN");
 		let newData = btoa(code);
 
 		let xhr = new XMLHttpRequest();
@@ -81,6 +82,7 @@ class Model {
 		
 		this.batchedTries = {};
 		let combinedCode = "import math\n" + codeRan + "\n" + testString;
+		combinedCode = combinedCode.replace(">", "GREATERTHAN");
 		let newData = this.encode(combinedCode)
 
 		let xhr = new XMLHttpRequest();
@@ -139,6 +141,7 @@ class Model {
 	sendBatchRequest(startingCode, testCase, index, typeOfRequest) {
 		
 		let newData = "import math\n" + startingCode + "\n" + testCase;
+		newData = newData.replace(">", "GREATERTHAN");
 		let code = this.encode(newData)
 
 		let xhr = new XMLHttpRequest();

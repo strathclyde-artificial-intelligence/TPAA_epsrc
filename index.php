@@ -1,5 +1,4 @@
 <?php
-
 	$output = (exec("/usr/bin/python3 generator.py"));
 
 	//$difficulty = "3";

@@ -9,12 +9,12 @@ node_iteration = {
         "iterator1": "avg = 0\nfor num in {list}:\navg += num %end\n{O} = (avg // len({list})) + {1}[A]", 
         "iterator2": "odds = 0\nfor num in {list}:\nif num % 2 == 1:\nodds += num %end\n{O} = odds + {1}[A]", 
         "iterator3": "evens = 0\nfor num in {list}:\nif num % 2 == 0:\nevens += num %end\n{O} = evens + {1}[A]", 
-        "iterator4": "max_num = -math.inf\nfor num in {list}:\nif max_num < num:\nmax_num = num %end\n{O} = max_num + {1}[A]", 
+        "iterator4": "max_num = -math.inf\nfor num in {list}:\nif num > max_num:\nmax_num = num %end\n{O} = max_num + {1}[A]", 
         "iterator5": "min_num = math.inf\nfor num in {list}:\nif num < min_num:\nmin_num = num %end\n{O} = min_num + {1}[A]", 
         "iterator6": "avg = 0\nfor num in {list}:\navg += num %end\n{O} = (avg // len({list})) - {1}[A]", 
         "iterator7": "odds = 0\nfor num in {list}:\nif num % 2 == 1:\nodds += num %end\n{O} = odds - {1}[A]", 
         "iterator8": "evens = 0\nfor num in {list}:\nif num % 2 == 0:\nevens += num %end\n{O} = evens - {1}[A]", 
-        "iterator9": "max_num = -math.inf\nfor num in {list}:\nif max_num < num:\nmax_num = num %end\n{O} = max_num - {1}[A]", 
+        "iterator9": "max_num = -math.inf\nfor num in {list}:\nif num > max_num:\nmax_num = num %end\n{O} = max_num - {1}[A]", 
         "iterator10": "min_num = math.inf\nfor num in {list}:\nif num < min_num:\nmin_num = num %end\n{O} = min_num - {1}[A]", 
         }
 
