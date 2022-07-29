@@ -5,7 +5,7 @@
 	$curl = curl_init();
 
 	curl_setopt_array($curl, [
-		CURLOPT_URL => "http://130.159.185.67:2358/submissions/$token?base64_encoded=true&fields=*",
+		CURLOPT_URL => "http://130.159.185.67:2358/submissions/$token?base64_encoded=true&wait=true&fields=*",
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_FOLLOWLOCATION => true,
 		CURLOPT_ENCODING => "",
