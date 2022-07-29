@@ -1,5 +1,5 @@
+# coding : utf 8
 import random
-# coding: utf8
 
 #%end keyword is used for splitting the code so that indentation works properly
 #: are used to split the statement phrases

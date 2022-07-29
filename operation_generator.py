@@ -1,3 +1,4 @@
+# coding : utf 8
 import random
 node_op = {
         "operation1": "{O} = {1} + {2} [A]", 
