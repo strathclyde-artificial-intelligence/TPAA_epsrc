@@ -1,6 +1,11 @@
 <?php
 
 	$codeUser = $_GET["code"];
+	$decoded_str = base64_decode($codeUser);
+
+	$new_dec = str_replace("GREATERTHAN", ">", $decoded_str);
+	$newCode = utf8_encode($new_dec);
+	$encoded_code = base64_encode($newCode);
 
 	$curl = curl_init();
 
@@ -15,7 +20,7 @@
 	CURLOPT_CUSTOMREQUEST => "POST",
 	CURLOPT_POSTFIELDS => "{
 	\"language_id\": 71,
-	\"source_code\": \"$codeUser\",
+	\"source_code\": \"$encoded_code\",
 	\"stdin\": \"SnVkZ2Uw\"
 }",
 	CURLOPT_HTTPHEADER => [
