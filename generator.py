@@ -4,15 +4,9 @@ import random
 import math
 from math import inf
 import json
-import sys
-import time
 import iteration_generator
 import cond_generator
 import operation_generator
-
-
-node_ret = "return {1}"
-
 
 class ProgrammingGenerator:
     def __init__(self):
@@ -20,6 +14,7 @@ class ProgrammingGenerator:
         self.statements = {}
         self.code = {}
         self.problem_object = {}
+        self.node_ret = "return {1}"
         self.starter_options = ["operation", "condition"]
         self.statement_options = ["operation", "condition", "iterator"]
         self.actions = ["A", "B"]
@@ -98,33 +93,41 @@ class ProgrammingGenerator:
                     key += 1
                     self.graph[index][0] = key
                     self.statements[key] = self.keywords[0]
-                    self.code[key] = node_ret
+                    self.code[key] = self.node_ret
                     self.graph[key] = []
                 if self.actions[1] in self.graph[index]:
                     key += 1
                     self.graph[index][1] = key
                     self.statements[key] = self.keywords[0]
-                    self.code[key] = node_ret
+                    self.code[key] = self.node_ret
                     self.graph[key] = []
-
-    def assign_node_parameters(self, complexity):
-        graph_list_keys = list(self.graph.keys())
+    
+    def find_critical_nodes(self, graph_list_keys):
         # We define a critical node as a node whose operation affects the outcome of the function. Initially, we add all return nodes and condition nodes to critical_nodes
-        critical_nodes = set()
-
         # start by adding all the nodes which are critical to critical_nodes
+        critical_nodes = set()
         for index in graph_list_keys:
             if self.keywords[0] in self.statements[index] or self.keywords[1] in self.statements[index]:
                 critical_nodes.add(index)
+        return critical_nodes
 
-        # we have a counter i which we assign to x variables for each operand node
-        y_var = "y"
+    
+    def get_xque(self, complexity):
+        #gets all the input variables and puts returns a list of these
         x_var = "x"
-        count = 1
         x_que = []
-        x_que
         for i in range(1, complexity):
             x_que.append(x_var + str(i))
+        return x_que
+
+
+    def assign_node_parameters(self, complexity):
+        graph_list_keys = list(self.graph.keys())
+        critical_nodes = self.find_critical_nodes(graph_list_keys)
+        x_que = self.get_xque(complexity)
+        # we have a counter i which we assign to x variables for each operand node
+        y_var = "y"
+        count = 1
 
         # this needs to be refactored into more functions, rather then being a huge cluster....
         for index in graph_list_keys:
@@ -229,6 +232,7 @@ class ProgrammingGenerator:
         return count
 
     def update_statements(self, index, statement, code_str, operand_to_replace, y_var, count):
+        #updates the statements in code and statement object
         if self.operands[0] in statement or self.operands[1] in statement:
             if operand_to_replace in statement:
                 new_statement = statement.replace(
@@ -254,8 +258,8 @@ class ProgrammingGenerator:
                 self.statements[index] = new_statement
                 self.code[index] = new_code
 
-    # this function adds input parameters into the statement
     def add_function_input(self, complexity, x_que):
+    # this function adds input parameters into the statement
         x_var = "x"
         # we create the number of input nodes, we do this by creating complexity - 1 input nodes,
         inputs_to_add = []
@@ -288,7 +292,6 @@ class ProgrammingGenerator:
 
     def fill_remaining(self):
         graph_list_keys = list(self.graph.keys())
-
         # for all the statements in the graph, we add random numbers to all available slots
         for index in graph_list_keys:
             if self.operands[0] in self.statements[index]:
@@ -308,7 +311,8 @@ class ProgrammingGenerator:
                 self.statements[index] = new_statement
                 self.code[index] = new_code
 
-    def dfs(self, visited, node):  # function for dfs
+    def dfs(self, visited, node): 
+        #funciton for dfs
         if node not in visited:
             if node not in visited:
                 visited.add(node)
@@ -516,7 +520,6 @@ class ProgrammingGenerator:
                 solution_code += "\n" + len(stack)*tab + node
 
         solution_code = solution_code.replace(self.code_keywords[4], "")
-
 
         for node in output_statements:
             if self.keywords[1] in node:
