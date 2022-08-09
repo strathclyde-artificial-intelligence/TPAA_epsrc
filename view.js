@@ -6,15 +6,17 @@ class View {
 
 		document.getElementById("runButton").addEventListener("click", this.getCode);
 		document.getElementById("nextButton").addEventListener("click", this.displayNextProblem);
+		document.getElementById("skipButton").addEventListener("click", () => {
+			location.reload();
+		});
 		document.getElementById("tabOptionProblem").addEventListener("click", this.displayProblemText);
 		document.getElementById("tabOptionSolution").addEventListener("click", this.displaySolutionText);
-
 	}
 
 	showSolution(solution, changeActiveButton) {
 		let solutionText = document.getElementById("solutionParagraph");
 		solutionText.innerText = solution;
-		view.changeActiveButton("Solution")
+		view.changeActiveButton("Solution");
 	}
 
 	setSolutionHandler(listener) {
