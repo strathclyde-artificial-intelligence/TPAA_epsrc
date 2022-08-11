@@ -11,7 +11,7 @@ operations = {
         "operation1": "Get the total of {1} + {2}, store the result in {O}.:[A]", 
         "operation2": "Get the product of {1} * {2}, store the result in {O}.:[A]", 
         "operation3": "Get the total of {1} - {2}, store the result in {O}.:[A]", 
-        "operation4": "Get the average of {1} and {2}, store the result in {O}.:[A]", 
+        "operation4": "Get the average of {1} and {2},:(rounded down to nearest integer),:store the result in {O}.:[A]", 
         }
 
 def generate():
