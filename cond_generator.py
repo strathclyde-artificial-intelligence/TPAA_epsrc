@@ -2,7 +2,7 @@
 import random
 node_cond = {
         "condition1": "if {1} == {2}: [A]else: [B]", 
-        "condition2": "if {1} >= {1}: [A]else: [B]", 
+        "condition2": "if {1} >= {2}: [A]else: [B]", 
         "condition3": "if {1} <= {2}: [A]else: [B]", 
         "condition4": "if {1} < {2}: [A]else: [B]", 
         "condition5": "if {1} > {2}: [A]else: [B]", 
